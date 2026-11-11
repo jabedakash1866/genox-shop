@@ -1,244 +1,405 @@
+
 import os
-import re
+import uuid
 import secrets
-from datetime import datetime, timezone, timedelta
+import string
+from datetime import datetime, timezone
+from decimal import Decimal, InvalidOperation
 
 import requests
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
-ADMIN_CHAT_ID = os.environ.get("ADMIN1_CHAT_ID", "")
-PLAYER_API_URL = os.environ.get("PLAYER_API_URL", "")
-PLAYER_API_REGION = os.environ.get("PLAYER_API_REGION", "BD")
-GUILD_API = os.environ.get("GUILD_API", "")
+SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "")
+ADMIN1_CHAT_ID = os.getenv("ADMIN1_CHAT_ID", "")
+PLAYER_API_URL = os.getenv(
+    "PLAYER_API_URL",
+    "https://jexarcodexplayer.vercel.app/ffinfo"
+)
+PLAYER_API_REGION = os.getenv("PLAYER_API_REGION", "BD")
+GUILD_API = os.getenv("GUILD_API", "")
 
-LIKES = {
-    "200": {7: (1400, 55), 15: (3000, 90), 30: (6000, 150), 60: (12000, 300), 90: (18000, 450)},
-    "400": {7: (2800, 150), 15: (6000, 240), 30: (12000, 400), 60: (24000, 800), 90: (36000, 1200)},
-    "1000": {7: (7000, 300), 15: (15000, 550), 30: (30000, 1000), 60: (60000, 2000), 90: (90000, 3000)},
-}
-TCP = {7: 130, 15: 275, 30: 550, 60: 1100}
-GLORY = {4: 120, 8: 240, 12: 360, 16: 480}
-
-CATALOG = {}
-for cat, rows in LIKES.items():
-    for days, (total, price) in rows.items():
-        CATALOG["l%s_%d" % (cat, days)] = {
-            "service": "likes", "category": cat,
-            "label": "%s Likes - %02d Days" % (cat, days),
-            "days": days, "quantity": total, "price": price}
-for days, price in TCP.items():
-    CATALOG["tcp_%d" % days] = {
-        "service": "tcp", "category": None,
-        "label": "TCP Bot - %02d Days" % days,
-        "days": days, "quantity": None, "price": price}
-for bots, price in GLORY.items():
-    CATALOG["glory_%d" % bots] = {
-        "service": "glory", "category": None,
-        "label": "%d BOT" % bots,
-        "days": None, "quantity": bots, "price": price}
-
-PAY_METHODS = ("nagad", "bkash", "rocket")
-SVC_NAME = {"likes": "Free Fire Likes", "tcp": "TCP Bot", "glory": "Guild Glory Bot"}
+TIMEOUT = 20
 
 
-def both(path, **kw):
-    def deco(f):
-        app.add_url_rule("/api" + path, f.__name__ + "_a", f, **kw)
-        app.add_url_rule(path, f.__name__ + "_b", f, **kw)
-        return f
-    return deco
+def response(data, status=200):
+    return jsonify(data), status
 
 
-def err(msg, code=400):
-    return jsonify(ok=False, error=msg), code
-
-
-def sb_headers():
-    h = {"apikey": SUPABASE_KEY, "Content-Type": "application/json"}
-    if SUPABASE_KEY.startswith("eyJ"):
-        h["Authorization"] = "Bearer " + SUPABASE_KEY
-    return h
+def supabase_headers(token=None):
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + (token or SUPABASE_KEY),
+        "Content-Type": "application/json",
+    }
+    return headers
 
 
 def get_user():
     auth = request.headers.get("Authorization", "")
+
     if not auth.startswith("Bearer "):
-        return None
+        return None, "লগইন করুন"
+
     token = auth[7:].strip()
+
+    if not token or not SUPABASE_URL or not SUPABASE_KEY:
+        return None, "Authentication configuration missing"
+
     try:
         r = requests.get(
             SUPABASE_URL + "/auth/v1/user",
-            headers={"apikey": SUPABASE_KEY, "Authorization": "Bearer " + token},
-            timeout=10)
+            headers=supabase_headers(token),
+            timeout=TIMEOUT
+        )
+
+        if r.status_code != 200:
+            return None, "লগইন সেশন সঠিক নয়"
+
+        user = r.json()
+
+        if not user.get("id"):
+            return None, "User পাওয়া যায়নি"
+
+        return user, None
+
     except requests.RequestException:
-        return None
-    if r.status_code != 200:
-        return None
-    u = r.json()
-    return u if u.get("id") else None
+        return None, "Authentication server unavailable"
 
 
-def notify_admin(text):
-    if not BOT_TOKEN or not ADMIN_CHAT_ID:
+def make_order_code():
+    chars = string.ascii_uppercase + string.digits
+    return "GX-" + "".join(
+        secrets.choice(chars) for _ in range(9)
+    )
+
+
+def send_telegram(message):
+    if not BOT_TOKEN or not ADMIN1_CHAT_ID:
         return False
+
     try:
         r = requests.post(
-            "https://api.telegram.org/bot%s/sendMessage" % BOT_TOKEN,
-            json={"chat_id": ADMIN_CHAT_ID, "text": text}, timeout=10)
-        return r.status_code == 200
+            "https://api.telegram.org/bot"
+            + BOT_TOKEN
+            + "/sendMessage",
+            json={
+                "chat_id": ADMIN1_CHAT_ID,
+                "text": message,
+                "parse_mode": "HTML"
+            },
+            timeout=TIMEOUT
+        )
+        return r.ok
     except requests.RequestException:
         return False
 
 
-@both("/orders", methods=["POST"])
-def create_order():
-    if not SUPABASE_URL or not SUPABASE_KEY:
-        return err("সার্ভার সেটআপ অসম্পূর্ণ", 503)
-    user = get_user()
-    if not user:
-        return err("লগইন প্রয়োজন", 401)
+def insert_order(payload):
+    url = SUPABASE_URL + "/rest/v1/orders"
 
-    d = request.get_json(silent=True) or {}
-    pkg = CATALOG.get(str(d.get("package_id", "")))
-    if not pkg or pkg["service"] != d.get("service"):
-        return err("প্যাকেজ সঠিক নয়")
+    r = requests.post(
+        url,
+        headers={
+            **supabase_headers(),
+            "Prefer": "return=representation"
+        },
+        json=payload,
+        timeout=TIMEOUT
+    )
 
-    name = str(d.get("name", "")).strip()[:80]
-    phone = str(d.get("phone", "")).strip()
-    uid = str(d.get("uid", "")).strip()
-    pay = str(d.get("payment_method", "")).strip()
-    txn = str(d.get("transaction_id", "")).strip()
+    if not r.ok:
+        try:
+            error = r.json()
+        except ValueError:
+            error = {"message": r.text[:300]}
 
-    if len(name) < 2:
-        return err("নাম লিখুন")
-    if not re.fullmatch(r"\+?\d{8,15}", phone):
-        return err("সঠিক ফোন নম্বর লিখুন")
-    if not re.fullmatch(r"\d{6,14}", uid):
-        return err("সঠিক UID লিখুন")
-    if pay not in PAY_METHODS:
-        return err("পেমেন্ট মেথড সঠিক নয়")
-    if not re.fullmatch(r"[A-Za-z0-9]{6,40}", txn):
-        return err("Transaction ID সঠিক নয়")
+        raise RuntimeError(
+            "Database order insert failed: "
+            + str(error.get("message", error))
+        )
 
-    customer = {"name": name, "phone": phone, "uid": uid, "email": user.get("email") or ""}
-    if pkg["service"] == "tcp":
-        fr = d.get("friend_uids") or []
-        if not isinstance(fr, list) or len(fr) > 4:
-            return err("Friend UID সঠিক নয়")
-        fr = [str(x).strip() for x in fr if str(x).strip()]
-        if any(not re.fullmatch(r"\d{6,14}", x) for x in fr):
-            return err("Friend UID সঠিক নয়")
-        customer["friend_uids"] = fr
+    data = r.json()
 
-    try:
-        dup = requests.get(
-            SUPABASE_URL + "/rest/v1/orders",
-            headers=sb_headers(),
-            params={"transaction_id": "eq." + txn, "select": "id", "limit": "1"},
-            timeout=10)
-        if dup.status_code == 200 and dup.json():
-            return err("এই Transaction ID আগে ব্যবহার হয়েছে")
-    except requests.RequestException:
-        return err("ডাটাবেসে সংযোগ হয়নি", 502)
+    if isinstance(data, list) and data:
+        return data[0]
 
-    bd = timezone(timedelta(hours=6))
-    now = datetime.now(bd)
-    code = "GX%s%s" % (now.strftime("%y%m%d"), secrets.token_hex(2).upper())
-
-    row = {
-        "user_id": user["id"], "order_code": code, "status": "pending",
-        "service": pkg["service"], "category": pkg["category"],
-        "package_label": pkg["label"], "duration_days": pkg["days"],
-        "quantity": pkg["quantity"], "price": pkg["price"],
-        "payment_method": pay, "transaction_id": txn, "customer_data": customer,
-    }
-    try:
-        h = sb_headers()
-        h["Prefer"] = "return=representation"
-        r = requests.post(SUPABASE_URL + "/rest/v1/orders", headers=h, json=row, timeout=10)
-    except requests.RequestException:
-        return err("অর্ডার সেভ করা যায়নি", 502)
-    if r.status_code not in (200, 201):
-        return err("অর্ডার সেভ করা যায়নি", 500)
-    saved = r.json()[0]
-
-    qty = ""
-    if pkg["quantity"] is not None:
-        qty = ("Total Likes: %d" if pkg["service"] == "likes" else "BOT: %d") % pkg["quantity"]
-    lines = [
-        "🛒 নতুন অর্ডার",
-        "Order ID: " + code,
-        "Service: " + SVC_NAME[pkg["service"]],
-        "Package: " + pkg["label"],
-    ]
-    if pkg["days"]:
-        lines.append("Duration: %02d Days" % pkg["days"])
-    if qty:
-        lines.append(qty)
-    lines += [
-        "Price: ৳%d" % pkg["price"],
-        "Customer: " + name,
-        "Email: " + (user.get("email") or "-"),
-        "Phone: " + phone,
-        "UID: " + uid,
-    ]
-    if customer.get("friend_uids"):
-        lines.append("Friend UID: " + ", ".join(customer["friend_uids"]))
-    lines += [
-        "Payment: " + pay,
-        "Transaction ID: " + txn,
-        "Time: " + now.strftime("%d-%m-%Y %I:%M %p"),
-    ]
-    notify_admin("\n".join(lines))
-
-    return jsonify(ok=True, order={"order_code": code, "created_at": saved.get("created_at")})
+    return data
 
 
-def fetch_json(url, params=None):
-    try:
-        r = requests.get(url, params=params, timeout=15)
-    except requests.RequestException:
-        return None, "সার্ভারে সংযোগ হয়নি"
-    if r.status_code != 200:
-        return None, "তথ্য পাওয়া যায়নি"
-    try:
-        j = r.json()
-    except ValueError:
-        return None, "সার্ভার থেকে সঠিক উত্তর আসেনি"
-    if not j or (isinstance(j, dict) and j.get("error")):
-        return None, "তথ্য পাওয়া যায়নি"
-    return j, None
+@app.get("/api/health")
+def health():
+    return response({
+        "ok": True,
+        "service": "GENOX SHOP API",
+        "time": datetime.now(timezone.utc).isoformat()
+    })
 
 
-@both("/player")
+@app.get("/api/player")
 def player():
     uid = request.args.get("uid", "").strip()
-    if not re.fullmatch(r"\d{4,14}", uid):
-        return err("সঠিক UID লিখুন")
-    if not PLAYER_API_URL:
-        return err("Player API সেট করা নেই", 503)
-    data, e = fetch_json(PLAYER_API_URL, {"uid": uid, "region": PLAYER_API_REGION})
-    if e:
-        return err(e, 502)
-    return jsonify(ok=True, data=data)
+
+    if not uid.isdigit() or not 6 <= len(uid) <= 14:
+        return response({
+            "ok": False,
+            "error": "সঠিক Player UID দিন"
+        }, 400)
+
+    try:
+        r = requests.get(
+            PLAYER_API_URL,
+            params={
+                "uid": uid,
+                "region": PLAYER_API_REGION
+            },
+            timeout=TIMEOUT
+        )
+
+        data = r.json()
+
+        if not r.ok:
+            return response({
+                "ok": False,
+                "error": "Player API unavailable"
+            }, 502)
+
+        return response({
+            "ok": True,
+            "data": data
+        })
+
+    except requests.RequestException:
+        return response({
+            "ok": False,
+            "error": "Player API connection failed"
+        }, 502)
 
 
-@both("/guild")
+@app.get("/api/guild")
 def guild():
-    gid = request.args.get("id", "").strip()
-    if not re.fullmatch(r"\d{4,14}", gid):
-        return err("সঠিক Guild ID লিখুন")
+    uid = request.args.get("uid", "").strip()
+
+    if not uid.isdigit() or not 6 <= len(uid) <= 14:
+        return response({
+            "ok": False,
+            "error": "সঠিক Guild ID দিন"
+        }, 400)
+
     if not GUILD_API:
-        return err("Guild API এখনো সেট করা হয়নি", 503)
-    if "{id}" in GUILD_API:
-        data, e = fetch_json(GUILD_API.replace("{id}", gid))
-    else:
-        data, e = fetch_json(GUILD_API, {"id": gid, "region": PLAYER_API_REGION})
-    if e:
-        return err(e, 502)
-    return jsonify(ok=True, data=data)
+        return response({
+            "ok": False,
+            "error": "Guild API এখনো configure করা হয়নি"
+        }, 503)
+
+    try:
+        r = requests.get(
+            GUILD_API,
+            params={"uid": uid},
+            timeout=TIMEOUT
+        )
+
+        try:
+            data = r.json()
+        except ValueError:
+            data = {"result": r.text[:1000]}
+
+        if not r.ok:
+            return response({
+                "ok": False,
+                "error": "Guild API request failed"
+            }, 502)
+
+        return response({
+            "ok": True,
+            "data": data
+        })
+
+    except requests.RequestException:
+        return response({
+            "ok": False,
+            "error": "Guild API connection failed"
+        }, 502)
+
+
+@app.post("/api/orders")
+def create_order():
+    user, error = get_user()
+
+    if error:
+        return response({
+            "ok": False,
+            "error": error
+        }, 401)
+
+    data = request.get_json(silent=True) or {}
+
+    service = str(data.get("service", "")).strip().lower()
+    allowed = {"likes", "tcp", "glory"}
+
+    if service not in allowed:
+        return response({
+            "ok": False,
+            "error": "Invalid service"
+        }, 400)
+
+    package_id = str(data.get("package_id", "")).strip()
+    package_label = str(data.get("package_label", "")).strip()
+
+    if not package_id or not package_label:
+        return response({
+            "ok": False,
+            "error": "Package information missing"
+        }, 400)
+
+    try:
+        price = Decimal(str(data.get("price", "0")))
+
+        if not price.is_finite() or price <= 0:
+            raise InvalidOperation()
+
+    except (InvalidOperation, ValueError):
+        return response({
+            "ok": False,
+            "error": "Invalid package price"
+        }, 400)
+
+    payment_method = str(
+        data.get("payment_method", "")
+    ).strip().lower()
+
+    if payment_method not in {"nagad", "bkash", "rocket"}:
+        return response({
+            "ok": False,
+            "error": "Invalid payment method"
+        }, 400)
+
+    transaction_id = str(
+        data.get("transaction_id", "")
+    ).strip()
+
+    if len(transaction_id) < 6 or len(transaction_id) > 100:
+        return response({
+            "ok": False,
+            "error": "সঠিক Transaction ID দিন"
+        }, 400)
+
+    name = str(data.get("name", "")).strip()
+    phone = str(data.get("phone", "")).strip()
+    uid = str(data.get("uid", "")).strip()
+
+    if len(name) < 2 or not phone:
+        return response({
+            "ok": False,
+            "error": "Customer information incomplete"
+        }, 400)
+
+    if not uid.isdigit() or not 6 <= len(uid) <= 14:
+        return response({
+            "ok": False,
+            "error": "সঠিক UID দিন"
+        }, 400)
+
+    try:
+        duration = int(data.get("duration_days") or 0)
+        quantity = int(data.get("quantity") or 1)
+
+        if duration < 0 or quantity < 1:
+            raise ValueError()
+
+    except (ValueError, TypeError):
+        return response({
+            "ok": False,
+            "error": "Invalid package quantity or duration"
+        }, 400)
+
+    customer_data = {
+        "name": name,
+        "phone": phone,
+        "uid": uid,
+        "friend_uids": data.get("friend_uids", []),
+        "package_id": package_id
+    }
+
+    order_code = make_order_code()
+
+    order_payload = {
+        "user_id": user["id"],
+        "order_code": order_code,
+        "status": "pending",
+        "service": service,
+        "category": str(data.get("category", "")),
+        "package_label": package_label,
+        "duration_days": duration,
+        "quantity": quantity,
+        "price": float(price),
+        "payment_method": payment_method,
+        "transaction_id": transaction_id,
+        "customer_data": customer_data
+    }
+
+    try:
+        order = insert_order(order_payload)
+
+    except (requests.RequestException, RuntimeError) as e:
+        return response({
+            "ok": False,
+            "error": str(e)
+        }, 500)
+
+    telegram_message = (
+        "<b>GENOX SHOP — NEW ORDER</b>\n\n"
+        "<b>Order:</b> " + order_code + "\n"
+        "<b>Service:</b> " + service.upper() + "\n"
+        "<b>Package:</b> " + package_label + "\n"
+        "<b>Price:</b> ৳" + str(price) + "\n"
+        "<b>Name:</b> " + name + "\n"
+        "<b>Phone:</b> " + phone + "\n"
+        "<b>UID:</b> " + uid + "\n"
+        "<b>Payment:</b> " + payment_method.upper() + "\n"
+        "<b>Transaction:</b> " + transaction_id + "\n"
+        "<b>User ID:</b> " + user["id"]
+    )
+
+    send_telegram(telegram_message)
+
+    return response({
+        "ok": True,
+        "message": "Order submitted successfully",
+        "order": order
+    }, 201)
+
+
+@app.errorhandler(404)
+def not_found(_):
+    return response({
+        "ok": False,
+        "error": "API route not found"
+    }, 404)
+
+
+@app.errorhandler(405)
+def method_not_allowed(_):
+    return response({
+        "ok": False,
+        "error": "Method not allowed"
+    }, 405)
+
+
+@app.errorhandler(500)
+def server_error(_):
+    return response({
+        "ok": False,
+        "error": "Internal server error"
+    }, 500)
+
+
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", "5000"))
+    )
+    
