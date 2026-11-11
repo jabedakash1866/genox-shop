@@ -1,7 +1,9 @@
+
 import os
+import re
 import uuid
 import html
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -10,12 +12,20 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
+# ==================================================
+# GENOX SHOP BACKEND SETTINGS
+# Private credentials must remain in Vercel Environment Variables.
+# ==================================================
+
+SHOP_NAME = "GENOX SHOP"
+ADMIN_NAME = "GENOX"
+
 PLAYER_API_URL = os.getenv(
     "PLAYER_API_URL",
     "https://jexarcodexplayer.vercel.app/ffinfo"
 )
 PLAYER_API_REGION = os.getenv("PLAYER_API_REGION", "BD")
-GUILD_API = os.getenv("GUILD_API", "")
+GUILD_API = os.getenv("GUILD_API", "").strip()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
@@ -25,28 +35,33 @@ ADMIN1_CHAT_ID = os.getenv("ADMIN1_CHAT_ID", "")
 
 TIMEOUT = 20
 
+# ==================================================
+# SERVER-SIDE PACKAGE PRICES
+# These prices are authoritative.
+# ==================================================
+
 LIKE_PACKAGES = {
     "200": {
-        "07 Days": (1400, 55),
-        "15 Days": (3000, 90),
-        "30 Days": (6000, 150),
-        "60 Days": (12000, 300),
-        "90 Days": (18000, 450),
+        "07 Days": {"likes": 1400, "price": 55},
+        "15 Days": {"likes": 3000, "price": 90},
+        "30 Days": {"likes": 6000, "price": 150},
+        "60 Days": {"likes": 12000, "price": 300},
+        "90 Days": {"likes": 18000, "price": 450},
     },
     "400": {
-        "07 Days": (2800, 150),
-        "15 Days": (6000, 240),
-        "30 Days": (12000, 400),
-        "60 Days": (24000, 800),
-        "90 Days": (36000, 1200),
+        "07 Days": {"likes": 2800, "price": 150},
+        "15 Days": {"likes": 6000, "price": 240},
+        "30 Days": {"likes": 12000, "price": 400},
+        "60 Days": {"likes": 24000, "price": 800},
+        "90 Days": {"likes": 36000, "price": 1200},
     },
     "1000": {
-        "07 Days": (7000, 300),
-        "15 Days": (15000, 550),
-        "30 Days": (30000, 1000),
-        "60 Days": (60000, 2000),
-        "90 Days": (90000, 3000),
-    },
+        "07 Days": {"likes": 7000, "price": 300},
+        "15 Days": {"likes": 15000, "price": 550},
+        "30 Days": {"likes": 30000, "price": 1000},
+        "60 Days": {"likes": 60000, "price": 2000},
+        "90 Days": {"likes": 90000, "price": 3000},
+    }
 }
 
 TCP_PACKAGES = {
@@ -63,21 +78,41 @@ GLORY_PACKAGES = {
     "16 Glory Bot": 480,
 }
 
+ALLOWED_PAYMENT_METHODS = {
+    "Nagad",
+    "bKash",
+    "Rocket"
+}
 
-def error(message, status=400):
+# ==================================================
+# HELPERS
+# ==================================================
+
+def response_error(message, status=400):
     return jsonify({
         "success": False,
         "error": message
     }), status
 
 
+def clean(value, limit=200):
+    return str(value or "").strip()[:limit]
+
+
+def valid_uid(value):
+    return bool(re.fullmatch(r"[0-9]{1,25}", str(value or "").strip()))
+
+
 def find_value(obj, keys):
     if isinstance(obj, dict):
         for key in keys:
             for actual_key, value in obj.items():
-                if actual_key.lower() == key.lower():
-                    if value not in (None, ""):
-                        return value
+                if (
+                    isinstance(actual_key, str)
+                    and actual_key.lower() == key.lower()
+                    and value not in (None, "")
+                ):
+                    return value
 
         for value in obj.values():
             result = find_value(value, keys)
@@ -103,6 +138,7 @@ def fetch_player(uid):
             },
             timeout=TIMEOUT
         )
+
         response.raise_for_status()
         result = response.json()
 
@@ -123,39 +159,50 @@ def fetch_player(uid):
         )
 
         return {
+            "success": True,
             "player_name": str(player_name),
             "bio": str(bio) if bio is not None else ""
         }
 
     except (requests.RequestException, ValueError, TypeError):
-        raise ValueError("Player information could not be verified")
+        raise ValueError(
+            "Player information is temporarily unavailable"
+        )
 
 
 def save_order(order):
     if not SUPABASE_URL or not SUPABASE_KEY:
         raise ValueError("Database configuration is incomplete")
 
+    url = SUPABASE_URL + "/rest/v1/orders"
+
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal"
+    }
+
     response = requests.post(
-        SUPABASE_URL + "/rest/v1/orders",
-        headers={
-            "apikey": SUPABASE_KEY,
-            "Authorization": "Bearer " + SUPABASE_KEY,
-            "Content-Type": "application/json",
-            "Prefer": "return=minimal"
-        },
+        url,
+        headers=headers,
         json=order,
         timeout=TIMEOUT
     )
 
     if response.status_code not in (200, 201, 204):
-        raise ValueError("Database could not save the order")
+        raise ValueError("Order could not be saved in database")
 
 
 def send_telegram(message):
     if not BOT_TOKEN or not ADMIN1_CHAT_ID:
         return False
 
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    url = (
+        "https://api.telegram.org/bot"
+        + BOT_TOKEN
+        + "/sendMessage"
+    )
 
     try:
         response = requests.post(
@@ -167,30 +214,76 @@ def send_telegram(message):
             },
             timeout=TIMEOUT
         )
-        return response.ok
 
-    except requests.RequestException:
+        return (
+            response.status_code == 200
+            and response.json().get("ok") is True
+        )
+
+    except (requests.RequestException, ValueError):
         return False
 
 
-def safe(value):
-    return html.escape(str(value if value not in (None, "") else "N/A"))
+def get_payment(data):
+    method = clean(data.get("paymentMethod"), 30)
+    transaction_id = clean(data.get("transactionId"), 120)
+
+    if method not in ALLOWED_PAYMENT_METHODS:
+        raise ValueError("Invalid payment method")
+
+    if not transaction_id:
+        raise ValueError("Transaction ID is required")
+
+    if len(transaction_id) < 4:
+        raise ValueError("Invalid Transaction ID")
+
+    return method, transaction_id
 
 
-@app.get("/api/health")
-def health():
-    return jsonify({
-        "success": True,
-        "message": "GENOX SHOP API is running"
-    })
+def telegram_message(order_id, service, data, price, method, txn, order_time):
+    lines = [
+        "🛒 <b>NEW ORDER — GENOX SHOP</b>",
+        "",
+        f"Order ID: <code>{html.escape(order_id)}</code>",
+        f"Service: {html.escape(service.upper())}",
+        f"Admin: {html.escape(ADMIN_NAME)}",
+        ""
+    ]
 
+    for key, value in data.items():
+        if key in ("price", "paymentMethod", "transactionId"):
+            continue
+
+        if value not in (None, ""):
+            lines.append(
+                f"{html.escape(str(key))}: "
+                f"{html.escape(str(value))}"
+            )
+
+    lines.extend([
+        "",
+        f"Payment Method: {html.escape(method)}",
+        f"Transaction ID: <code>{html.escape(txn)}</code>",
+        f"Total Price: ৳{price}",
+        "Order Status: Pending Payment",
+        f"Order Date: {html.escape(order_time)}",
+        "",
+        "⚠️ Please verify payment manually."
+    ])
+
+    return "\n".join(lines)
+
+
+# ==================================================
+# PLAYER API
+# ==================================================
 
 @app.get("/api/player")
 def player():
     uid = request.args.get("uid", "").strip()
 
-    if not uid.isdigit():
-        return error("Valid Player UID required")
+    if not valid_uid(uid):
+        return response_error("Valid Player UID required")
 
     try:
         result = fetch_player(uid)
@@ -201,19 +294,26 @@ def player():
             "bio": result["bio"]
         })
 
-    except ValueError as exc:
-        return error(str(exc), 502)
+    except ValueError as error:
+        return response_error(str(error), 502)
 
+
+# ==================================================
+# GUILD API
+# ==================================================
 
 @app.get("/api/guild")
 def guild():
     uid = request.args.get("uid", "").strip()
 
-    if not uid.isdigit():
-        return error("Valid Guild UID required")
+    if not valid_uid(uid):
+        return response_error("Valid Guild UID required")
 
     if not GUILD_API:
-        return error("Guild API is not configured yet", 503)
+        return response_error(
+            "Guild API is not configured yet",
+            503
+        )
 
     try:
         response = requests.get(
@@ -224,6 +324,7 @@ def guild():
             },
             timeout=TIMEOUT
         )
+
         response.raise_for_status()
         result = response.json()
 
@@ -236,193 +337,194 @@ def guild():
         })
 
     except (requests.RequestException, ValueError):
-        return error("Guild information unavailable", 502)
+        return response_error(
+            "Guild information unavailable",
+            502
+        )
 
+
+# ==================================================
+# ORDER VALIDATION AND PRICE CALCULATION
+# ==================================================
+
+def validate_order(service, data):
+
+    if service == "likes":
+        pack = clean(data.get("pack"), 10)
+        duration = clean(data.get("duration"), 20)
+        uid = clean(data.get("uid"), 25)
+
+        if pack not in LIKE_PACKAGES:
+            raise ValueError("Invalid Likes package")
+
+        if duration not in LIKE_PACKAGES[pack]:
+            raise ValueError("Invalid Likes duration")
+
+        if not valid_uid(uid):
+            raise ValueError("Valid Player UID required")
+
+        player = fetch_player(uid)
+
+        package = LIKE_PACKAGES[pack][duration]
+
+        data["pack"] = pack
+        data["duration"] = duration
+        data["uid"] = uid
+        data["playerName"] = player["player_name"]
+        data["totalLikes"] = package["likes"]
+
+        return Decimal(str(package["price"]))
+
+    if service == "tcp":
+        duration = clean(data.get("duration"), 20)
+        bot_name = clean(data.get("botName"), 9)
+        guild_join = clean(data.get("guildJoin"), 10)
+        guild_id = clean(data.get("guildId"), 25)
+
+        if duration not in TCP_PACKAGES:
+            raise ValueError("Invalid TCP package")
+
+        if not bot_name:
+            raise ValueError("Bot Name is required")
+
+        if len(bot_name) > 9:
+            raise ValueError("Bot name must be 9 characters or less")
+
+        if guild_join not in ("YES", "NO", "SKIP"):
+            raise ValueError("Invalid Guild Join option")
+
+        if guild_join == "YES" and not valid_uid(guild_id):
+            raise ValueError("Valid Guild ID is required")
+
+        if guild_id and not valid_uid(guild_id):
+            raise ValueError("Invalid Guild ID")
+
+        data["duration"] = duration
+        data["botName"] = bot_name
+        data["guildJoin"] = guild_join
+        data["guildId"] = guild_id
+
+        for i in range(1, 5):
+            friend = clean(data.get("friend" + str(i)), 25)
+
+            if friend and not valid_uid(friend):
+                raise ValueError("Invalid Friend UID")
+
+            data["friend" + str(i)] = friend
+
+        return Decimal(str(TCP_PACKAGES[duration]))
+
+    if service == "glory":
+        package = clean(data.get("package"), 30)
+        guild_id = clean(data.get("guildId"), 25)
+
+        if package not in GLORY_PACKAGES:
+            raise ValueError("Invalid Glory package")
+
+        if not valid_uid(guild_id):
+            raise ValueError("Valid Guild ID required")
+
+        data["package"] = package
+        data["guildId"] = guild_id
+
+        return Decimal(str(GLORY_PACKAGES[package]))
+
+    raise ValueError("Invalid service")
+
+
+# ==================================================
+# CREATE ORDER
+# ==================================================
 
 @app.post("/api/orders")
 def create_order():
     body = request.get_json(silent=True)
 
     if not isinstance(body, dict):
-        return error("Invalid order data")
+        return response_error("Invalid order data")
 
-    service = str(body.get("service", "")).lower()
+    service = clean(body.get("service"), 20).lower()
     data = body.get("data")
 
     if service not in ("likes", "tcp", "glory"):
-        return error("Invalid service")
+        return response_error("Invalid service")
 
     if not isinstance(data, dict):
-        return error("Invalid customer information")
+        return response_error("Invalid customer information")
 
-    # Payment information
-    payment_method = str(
-        data.get("paymentMethod", "")
-    ).strip()
-
-    transaction_id = str(
-        data.get("transactionId", "")
-    ).strip()
-
-    if payment_method != "Nagad":
-        return error("Please select Nagad payment")
-
-    if not transaction_id or len(transaction_id) > 100:
-        return error("Valid Transaction ID required")
-
-    # Verify package and server-side price
-    try:
-        if service == "likes":
-            pack = str(data.get("pack", "")).strip()
-            duration = str(data.get("duration", "")).strip()
-            uid = str(data.get("uid", "")).strip()
-
-            if pack not in LIKE_PACKAGES:
-                return error("Invalid Likes package")
-
-            if duration not in LIKE_PACKAGES[pack]:
-                return error("Invalid Likes duration")
-
-            if not uid.isdigit():
-                return error("Valid Player UID required")
-
-            package_likes, price = LIKE_PACKAGES[pack][duration]
-
-            player = fetch_player(uid)
-
-            data["playerName"] = player["player_name"]
-            data["totalLikes"] = package_likes
-            data["price"] = price
-
-        elif service == "tcp":
-            duration = str(data.get("duration", "")).strip()
-            bot_name = str(data.get("botName", "")).strip()
-            guild_join = str(data.get("guildJoin", "")).strip()
-
-            if duration not in TCP_PACKAGES:
-                return error("Invalid TCP package")
-
-            if not bot_name or len(bot_name) > 9:
-                return error("Bot Name must be 1-9 characters")
-
-            if guild_join not in ("YES", "NO", "SKIP"):
-                return error("Invalid Guild Join selection")
-
-            guild_id = str(data.get("guildId", "")).strip()
-
-            if guild_join == "YES" and not guild_id.isdigit():
-                return error("Valid Guild ID required")
-
-            friends = []
-
-            for i in range(1, 5):
-                friend_uid = str(
-                    data.get("friend" + str(i), "")
-                ).strip()
-
-                if friend_uid and not friend_uid.isdigit():
-                    return error("Friend UID must contain digits only")
-
-                if friend_uid:
-                    friends.append(friend_uid)
-
-            if len(friends) != len(set(friends)):
-                return error("Duplicate Friend UID found")
-
-            price = TCP_PACKAGES[duration]
-            data["price"] = price
-
-        else:
-            package = str(data.get("package", "")).strip()
-            guild_id = str(data.get("guildId", "")).strip()
-
-            if package not in GLORY_PACKAGES:
-                return error("Invalid Glory package")
-
-            if not guild_id.isdigit():
-                return error("Valid Guild ID required")
-
-            price = GLORY_PACKAGES[package]
-            data["price"] = price
-
-        # Never trust the price sent by the browser
-        submitted_price = Decimal(str(body["data"].get("price", "0")))
-        if submitted_price != Decimal(str(price)):
-            return error("Package price mismatch. Please refresh your order.")
-
-    except (InvalidOperation, KeyError, ValueError):
-        return error("Order information could not be verified")
-
-    data["paymentMethod"] = payment_method
-    data["transactionId"] = transaction_id
-
-    order_id = "GX-" + uuid.uuid4().hex[:10].upper()
-
-    now = datetime.now(ZoneInfo("Asia/Dhaka"))
-    order_time = now.strftime("%d-%m-%Y %I:%M:%S %p")
-
-    order = {
-        "order_id": order_id,
-        "service": service.upper(),
-        "customer_data": data,
-        "total_price": price,
-        "status": "Pending Payment"
-    }
+    # Copy input so server-controlled fields can be overwritten.
+    data = dict(data)
 
     try:
+        # Server calculates price. Never trust browser-submitted price.
+        price = validate_order(service, data)
+
+        payment_method, transaction_id = get_payment(data)
+
+        order_id = "GX-" + uuid.uuid4().hex[:10].upper()
+
+        now = datetime.now(ZoneInfo("Asia/Dhaka"))
+        order_time = now.strftime("%d-%m-%Y %I:%M:%S %p")
+
+        data["paymentMethod"] = payment_method
+        data["transactionId"] = transaction_id
+
+        order = {
+            "order_id": order_id,
+            "service": service.upper(),
+            "customer_data": data,
+            "total_price": float(price),
+            "status": "Pending Payment"
+        }
+
+        # Save first, then notify Telegram.
         save_order(order)
-    except (ValueError, requests.RequestException) as exc:
-        return error(str(exc), 500)
 
-    lines = [
-        "🛒 <b>NEW ORDER — GENOX SHOP</b>",
-        "",
-        f"Service: {safe(service.upper())}",
-    ]
+        message = telegram_message(
+            order_id,
+            service,
+            data,
+            price,
+            payment_method,
+            transaction_id,
+            order_time
+        )
 
-    if service == "likes":
-        lines.extend([
-            f"Package: {safe(data.get('pack'))} Likes",
-            f"Duration: {safe(data.get('duration'))}",
-            f"UID: {safe(data.get('uid'))}",
-            f"Player: {safe(data.get('playerName'))}",
-            f"Total Likes: {safe(data.get('totalLikes'))}",
-        ])
+        telegram_sent = send_telegram(message)
 
-    elif service == "tcp":
-        lines.extend([
-            f"Package Duration: {safe(data.get('duration'))}",
-            f"Bot Name: {safe(data.get('botName'))}",
-            f"Guild Join: {safe(data.get('guildJoin'))}",
-            f"Guild ID: {safe(data.get('guildId'))}",
-        ])
+        return jsonify({
+            "success": True,
+            "order_id": order_id,
+            "status": "Pending Payment",
+            "telegram_sent": telegram_sent
+        })
 
-        for i in range(1, 5):
-            lines.append(
-                f"Friend UID {i}: {safe(data.get('friend' + str(i)))}"
-            )
+    except ValueError as error:
+        return response_error(str(error), 400)
 
-    else:
-        lines.extend([
-            f"Package: {safe(data.get('package'))}",
-            f"Guild ID: {safe(data.get('guildId'))}",
-        ])
+    except requests.RequestException:
+        return response_error(
+            "A network error occurred. Please try again.",
+            502
+        )
 
-    lines.extend([
-        "",
-        f"Payment Method: {safe(payment_method)}",
-        f"Transaction ID: {safe(transaction_id)}",
-        f"Total Price: ৳{price}",
-        "Order Status: Pending Payment",
-        f"Order ID: {order_id}",
-        f"Order Date & Time: {order_time}",
-    ])
+    except Exception:
+        app.logger.exception("Order processing failed")
+        return response_error(
+            "Order could not be processed. Please contact admin.",
+            500
+        )
 
-    telegram_sent = send_telegram("\n".join(lines))
 
+# ==================================================
+# HEALTH CHECK
+# ==================================================
+
+@app.get("/api/health")
+def health():
     return jsonify({
         "success": True,
-        "order_id": order_id,
-        "status": "Pending Payment",
-        "telegram_sent": telegram_sent
+        "shop": SHOP_NAME,
+        "message": "GENOX SHOP API is running"
     })
+    
