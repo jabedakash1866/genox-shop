@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -5,495 +6,880 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#080d1b">
 <title>GENOX SHOP</title>
+
 <style>
 :root {
   --bg:#080d1b;
-  --card:#111a2e;
-  --card2:#17233b;
+  --card:#111b30;
+  --card2:#172541;
+  --blue:#3988ff;
+  --purple:#8757ff;
   --text:#f4f7ff;
-  --muted:#a7b3ca;
-  --blue:#27a9ff;
-  --purple:#925cff;
-  --border:#263653;
+  --muted:#a8b5cc;
+  --green:#21d69b;
+  --border:#293957;
 }
 *{box-sizing:border-box}
 body{
- margin:0;background:var(--bg);color:var(--text);
- font-family:Arial,"Noto Sans Bengali",sans-serif;
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Arial,sans-serif;
 }
 button,input,select{font:inherit}
 button{cursor:pointer}
+a{color:inherit}
+.container{width:min(100% - 28px,1050px);margin:auto}
 header{
- position:sticky;top:0;z-index:10;
- background:#080d1bf2;border-bottom:1px solid var(--border);
- padding:15px;display:flex;justify-content:space-between;
- align-items:center;
+  padding:17px 0;border-bottom:1px solid var(--border);
+  background:#0b1324;
 }
-.brand{font-size:21px;font-weight:900;letter-spacing:1px}
-.brand span{color:var(--blue)}
-nav{display:flex;gap:15px;flex-wrap:wrap}
-nav a{color:var(--muted);text-decoration:none;font-size:13px}
-.container{max-width:1050px;margin:auto;padding:18px}
-.notice{
- overflow:hidden;white-space:nowrap;padding:12px;
- background:#15223b;color:#8fd4ff;
- border-bottom:1px solid var(--border);
+.nav{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{font-size:23px;font-weight:900;letter-spacing:1px}
+.logo span{color:#68a4ff}
+.nav button,.back{
+  border:1px solid var(--border);background:var(--card);
+  color:white;padding:10px 14px;border-radius:10px;
 }
-.notice span{display:inline-block;animation:scroll 18s linear infinite}
-@keyframes scroll{to{transform:translateX(-100%)}}
 .hero{
- padding:55px 20px;text-align:center;border:1px solid var(--border);
- border-radius:22px;margin:20px 0;
- background:radial-gradient(circle at top,#263d70,#10172a 65%);
+  text-align:center;padding:55px 12px 40px;
+  background:radial-gradient(ellipse at top,#19376b 0%,#0b1427 48%,var(--bg) 78%);
 }
-.hero h1{font-size:36px;margin:0 0 12px}
-.hero h1 span{color:var(--blue)}
+.hero h1{font-size:clamp(30px,7vw,48px);margin:0 0 12px}
+.hero h1 span{color:#69a5ff}
 .hero p{color:var(--muted);line-height:1.7}
-.section-title{margin:35px 0 16px;font-size:23px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
-.card{
- background:linear-gradient(145deg,var(--card2),var(--card));
- border:1px solid var(--border);border-radius:17px;padding:20px;
+.primary{
+  border:0;border-radius:12px;padding:13px 22px;
+  color:white;font-weight:bold;
+  background:linear-gradient(110deg,var(--blue),var(--purple));
 }
-.card h3{margin-top:0}
-.card p{color:var(--muted);font-size:14px;line-height:1.6}
-.btn{
- border:0;border-radius:10px;padding:12px 16px;
- background:linear-gradient(100deg,var(--blue),var(--purple));
- color:white;font-weight:bold;width:100%;margin-top:10px;
+.section{padding:30px 0}
+.section-title{text-align:center;margin-bottom:22px}
+.section-title h2{margin-bottom:8px}
+.section-title p{color:var(--muted);font-size:14px}
+.service-grid,.package-grid,.tool-grid,.social-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;
 }
-.btn.secondary{background:#263653}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-input,select{
- width:100%;padding:13px;margin:7px 0 14px;
- border-radius:9px;border:1px solid var(--border);
- background:#0a1223;color:white;outline:none;
+.service-card,.package-card,.panel,.tool-card{
+  background:linear-gradient(145deg,var(--card2),var(--card));
+  border:1px solid var(--border);border-radius:16px;padding:17px;
 }
-label{font-size:14px;color:#c8d5ed}
-.panel{
- display:none;background:var(--card);border:1px solid var(--border);
- border-radius:16px;padding:20px;margin-top:18px;
+.service-card h3{margin:5px 0 8px}
+.service-card p,.tool-card p{color:var(--muted);font-size:13px;line-height:1.6}
+.service-card button{width:100%;margin-top:10px}
+.service-icon{font-size:27px}
+.page{display:none;padding:22px 0 35px}
+.page.active{display:block}
+.page-heading{margin:20px 0}
+.page-heading h2{margin-bottom:7px}
+.page-heading p{color:var(--muted);font-size:14px}
+.package-card{
+  text-align:left;position:relative;min-height:112px;
+  color:var(--text);width:100%;
 }
-.panel.active{display:block}
-.price{color:#71d5ff;font-weight:bold}
-.small{font-size:12px;color:var(--muted)}
-.result{white-space:pre-wrap;line-height:1.7;color:#dceaff}
-.step{display:flex;gap:7px;margin:15px 0}
-.step span{height:5px;flex:1;border-radius:5px;background:#263653}
-.step span.done{background:var(--blue)}
-.faq-item{border-bottom:1px solid var(--border);padding:13px 0}
-.faq-item summary{cursor:pointer;font-weight:bold}
-.faq-item p{color:var(--muted);line-height:1.7}
-footer{
- text-align:center;padding:30px 15px;margin-top:40px;
- border-top:1px solid var(--border);color:var(--muted);
+.package-card strong{display:block;font-size:16px;margin-bottom:8px}
+.package-card small{display:block;color:var(--muted);margin-bottom:8px}
+.package-card .price{font-size:21px;font-weight:900;color:var(--green)}
+.package-card.selected{
+  border:2px solid var(--blue);
+  background:linear-gradient(145deg,#193c70,#20234a);
 }
-.social{display:flex;justify-content:center;gap:13px;margin:18px}
-.social a{
- width:42px;height:42px;border-radius:50%;
- display:grid;place-items:center;background:#17233b;
- color:white;text-decoration:none;font-weight:bold;
+.package-card.selected:after{
+  content:"✓";position:absolute;right:12px;top:10px;
+  color:var(--green);font-weight:bold;
 }
+.field{margin:14px 0}
+.field label{display:block;font-size:14px;margin-bottom:8px}
+.field input,.field select{
+  width:100%;padding:14px;border-radius:10px;
+  border:1px solid var(--border);background:#091326;color:white;
+  outline:none;
+}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.panel{margin-top:18px}
+.summary-row{
+  display:flex;justify-content:space-between;gap:10px;
+  padding:9px 0;border-bottom:1px solid var(--border);font-size:14px;
+}
+.summary-row:last-child{border:0}
+.summary-row span{color:var(--muted)}
+.total{font-size:22px;color:var(--green);font-weight:bold}
+.notice{
+  margin-top:22px;padding:16px;border-radius:13px;
+  background:#251d12;border:1px solid #795622;
+  color:#ffdda0;font-size:13px;line-height:1.8;
+  white-space:pre-line;
+}
+.step{display:none}
+.step.active{display:block}
+.step-count{color:#8bbaff;font-size:13px;margin:8px 0}
+.actions{display:flex;gap:10px;margin-top:17px}
+.actions button{flex:1}
+.secondary{
+  border:1px solid var(--border);background:var(--card);
+  color:white;border-radius:11px;padding:13px;
+}
+.social{
+  margin-top:28px;padding:20px 0 12px;
+  border-top:1px solid var(--border);
+}
+.social h3{text-align:center;font-size:16px}
+.social-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.social-link{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  text-decoration:none;color:white;padding:15px 8px;
+  border-radius:12px;background:var(--card);
+  border:1px solid var(--border);font-weight:bold;
+}
+.social-link.whatsapp{background:#123d31;border-color:#167b58}
+.social-link.instagram{background:#402044;border-color:#9b459e}
+.social-link.facebook{background:#122c51;border-color:#2869b8}
+.social-link.tiktok{background:#17232c;border-color:#526d7c}
+.social-link.youtube{background:#481c24;border-color:#a63845}
+.social-link .symbol{font-size:22px}
+footer{text-align:center;padding:24px;color:var(--muted);font-size:12px}
 .hidden{display:none!important}
-.error{color:#ff8585;font-size:13px}
-@media(max-width:600px){
- nav{gap:9px}nav a{font-size:11px}
- .hero h1{font-size:28px}
- .container{padding:13px}
+.message{margin-top:12px;font-size:13px;line-height:1.6;white-space:pre-wrap}
+.success{color:var(--green)}
+.error{color:#ff7777}
+.faq-item{padding:15px;border-bottom:1px solid var(--border)}
+.faq-item p{color:var(--muted);font-size:14px;line-height:1.6}
+.contact-card{display:block;text-decoration:none;margin-top:12px}
+@media(min-width:650px){
+  .service-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .package-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .social-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
 }
 </style>
 </head>
-<body>
 
+<body>
 <header>
- <div class="brand">GENOX <span>SHOP</span></div>
- <nav>
-  <a href="#services">Services</a>
-  <a href="#free">Free Tools</a>
-  <a href="#faq">FAQ</a>
-  <a href="#contact">Contact</a>
- </nav>
+  <div class="container nav">
+    <div class="logo" id="siteLogo">GENOX <span>SHOP</span></div>
+    <button onclick="showPage('home')">Home</button>
+  </div>
 </header>
 
-<div class="notice">
- <span>⚡ FREE FIRE LIKES AVAILABLE NOW　 •　 TCP BOT ORDER OPEN　 •　 GUILD GLORY BOT AVAILABLE　 •　 GENOX SHOP</span>
-</div>
-
 <main class="container">
- <section class="hero">
-  <h1>WELCOME TO <span>GENOX SHOP</span></h1>
-  <p>আপনার বিশ্বস্ত Gaming Service Platform</p>
-  <a href="#services"><button class="btn" style="max-width:210px">Explore Services</button></a>
- </section>
 
- <h2 class="section-title" id="services">Our Services</h2>
- <div class="grid">
-  <article class="card">
-   <h3>❤️ FREE FIRE LIKES</h3>
-   <p>২০০, ৪০০ ও ১০০০ Likes-এর বিভিন্ন মেয়াদের প্যাকেজ।</p>
-   <button class="btn" onclick="openService('likes')">View Details / Order</button>
-  </article>
-  <article class="card">
-   <h3>⚡ FREE FIRE TCP BOT</h3>
-   <p>৭, ১৫, ৩০ ও ৬০ দিনের প্যাকেজ।</p>
-   <button class="btn" onclick="openService('tcp')">View Details / Order</button>
-  </article>
-  <article class="card">
-   <h3>👑 GUILD GLORY BOT</h3>
-   <p>৪, ৮, ১২ ও ১৬ Glory Bot প্যাকেজ।</p>
-   <button class="btn" onclick="openService('glory')">View Details / Order</button>
-  </article>
- </div>
-
- <section id="order" class="panel">
-  <h2 id="orderTitle">Place Your Order</h2>
-  <div class="step" id="progress">
-   <span class="done"></span><span></span><span></span><span></span><span></span>
+<section id="home" class="page active">
+  <div class="hero">
+    <h1 id="welcomeTitle">WELCOME TO <span>GENOX SHOP</span></h1>
+    <p id="welcomeText">Your Gaming Services Destination.</p>
+    <button class="primary" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">Explore Services</button>
   </div>
-  <div id="orderForm"></div>
-  <div id="orderError" class="error"></div>
-  <div id="orderSummary" class="result"></div>
- </section>
 
- <h2 class="section-title" id="free">Free Tools</h2>
- <div class="grid">
-  <article class="card">
-   <h3>🔎 Guild Info Checker</h3>
-   <p>Guild information যাচাই করুন।</p>
-   <input id="guildUid" placeholder="Enter Guild UID">
-   <button class="btn" onclick="checkGuild()">Check Guild</button>
-   <div id="guildResult" class="result"></div>
-  </article>
-  <article class="card">
-   <h3>📋 Player Bio Copy</h3>
-   <p>Player UID দিয়ে Bio যাচাই করুন।</p>
-   <input id="bioUid" placeholder="Enter Player UID">
-   <button class="btn" onclick="checkBio()">Check Bio</button>
-   <div id="bioResult" class="result"></div>
-   <button class="btn secondary hidden" id="copyBio" onclick="copyPlayerBio()">Copy Bio</button>
-  </article>
-  <article class="card">
-   <h3>📱 Free Phone Root</h3>
-   <p>আপনার ফোনের Compatibility জানতে Admin-এর সঙ্গে যোগাযোগ করুন।</p>
-   <a href="https://t.me/Jabedakash" target="_blank"><button class="btn">Contact Admin</button></a>
-  </article>
- </div>
+  <section id="services" class="section">
+    <div class="section-title">
+      <h2>OUR SERVICES</h2>
+      <p>Choose your required service</p>
+    </div>
+    <div class="service-grid">
+      <div class="service-card">
+        <div class="service-icon">❤️</div>
+        <h3>Free Fire Likes</h3>
+        <p>Choose your Likes package and duration.</p>
+        <button class="primary" onclick="openService('likes')">View Details</button>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🤖</div>
+        <h3>TCP Bot</h3>
+        <p>Select a package and submit your details.</p>
+        <button class="primary" onclick="openService('tcp')">View Details</button>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🏆</div>
+        <h3>Guild Glory Bot</h3>
+        <p>Select your Glory Bot package.</p>
+        <button class="primary" onclick="openService('glory')">View Details</button>
+      </div>
+    </div>
+  </section>
 
- <h2 class="section-title" id="faq">Frequently Asked Questions</h2>
- <section class="card">
-  <details class="faq-item">
-   <summary>দিনে সর্বোচ্চ কত লাইক পাওয়া যায়?</summary>
-   <p>অটো-লাইক প্যাকেজে প্রতিটি UID-তে ২০০, ৪০০ বা ১০০০ লাইক পর্যন্ত নেওয়া যায়। দিনের লাইক লিমিট বাংলাদেশ সময় ভোর ৪:০০টায় রিসেট হয় এবং অটো-লাইক ভোর ৪:৩০ থেকে পাঠানো শুরু হয়। কোনো দিনের লাইক না গেলে সেটি পরের দিনে যোগ হয়।</p>
-  </details>
-  <details class="faq-item">
-   <summary>অর্ডার দেওয়ার পর কখন লাইক পাব?</summary>
-   <p>২০০, ৪০০, ৬০০ পর্যন্ত লাইকের অর্ডার পেমেন্টের পরপরই ডেলিভারি লাইনে যায় এবং আগের অর্ডার শেষ হলেই পাঠানো হয়। এর বেশি লাইক বা মেম্বারশিপ অটো-লাইক প্যাকেজ হিসেবে প্রতিদিন ভোর ৪:৩০ থেকে পাঠানো হয়। ৫ দিন বা তার বেশি মেয়াদের প্যাকেজে প্রথম ব্যাচ সাথেই যায়।</p>
-  </details>
-  <details class="faq-item">
-   <summary>অর্ডার করতে কি পাসওয়ার্ড বা লগইন দিতে হবে?</summary>
-   <p>না। শুধু আপনার Free Fire UID লাগবে। পেমেন্টের আগে UID যাচাই করে আপনার নিকানেম দেখানো হয়, যাতে ভুল আইডিতে লাইক না যায়। কখনো কাউকে গেমের পাসওয়ার্ড দেবেন না।</p>
-  </details>
-  <details class="faq-item">
-   <summary>লাইক কম গেলে বা না গেলে টাকা ফেরত পাব?</summary>
-   <p>হ্যাঁ। আপনি শুধু যতগুলো লাইক আসলে পৌঁছেছে তার দাম দেন। বাকি টাকা স্বয়ংক্রিয়ভাবে আপনার ওয়ালেটে ফেরত যায়, আর একটি লাইকও না গেলে পুরো টাকা ফেরত। মেম্বারশিপ প্যাকেজে নগদ টাকা ফেরত নেই, মোট লাইক শেষ না হওয়া পর্যন্ত লাইক পাঠানো চলতে থাকে।</p>
-  </details>
- </section>
+  <section class="section">
+    <div class="section-title">
+      <h2>FREE TOOLS</h2>
+      <p>Useful tools for Free Fire players</p>
+    </div>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h3>Guild Info Checker</h3>
+        <p>Check guild information using a Guild UID.</p>
+        <button class="secondary" onclick="showPage('tools')">Open Tools</button>
+      </div>
+      <div class="tool-card">
+        <h3>Player Bio Copy</h3>
+        <p>Find player information and copy the bio.</p>
+        <button class="secondary" onclick="showPage('tools')">Open Tools</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title"><h2>FAQ</h2></div>
+    <div class="panel" id="faqList"></div>
+  </section>
+  <div class="social" id="homeSocial"></div>
+</section>
+
+<section id="likes" class="page">
+  <button class="back" onclick="showPage('home')">← Back</button>
+  <div class="page-heading">
+    <h2>❤️ FREE FIRE LIKES</h2>
+    <p>Select one package.</p>
+  </div>
+  <div id="likesPackages" class="package-grid"></div>
+
+  <div id="likesForm" class="panel hidden">
+    <h3>Player Information</h3>
+    <div class="field">
+      <label>Free Fire UID</label>
+      <input id="likesUid" inputmode="numeric" placeholder="Enter your Player UID">
+    </div>
+    <button class="secondary" onclick="checkPlayer()">Verify UID</button>
+    <div id="playerResult" class="message"></div>
+    <div id="likesPayment" class="hidden">
+      <div class="panel">
+        <h3>Order Summary</h3>
+        <div id="likesSummary"></div>
+      </div>
+      <div class="payment-fields"></div>
+      <button class="primary" onclick="submitLikes()">Confirm Order</button>
+      <div id="likesMessage" class="message"></div>
+    </div>
+  </div>
+  <div class="notice" id="likesNotice"></div>
+  <div class="social"></div>
+</section>
+
+<section id="tcp" class="page">
+  <button class="back" onclick="showPage('home')">← Back</button>
+  <div class="page-heading">
+    <h2>🤖 TCP BOT</h2>
+    <p>Complete your order in five steps.</p>
+  </div>
+
+  <div class="panel">
+    <div class="step-count" id="tcpCount">Step 1 of 5</div>
+    <div class="step active" id="tcpStep1">
+      <h3>Step 1 — Select Package</h3>
+      <div id="tcpPackages" class="package-grid"></div>
+    </div>
+    <div class="step" id="tcpStep2">
+      <h3>Step 2 — Bot Information</h3>
+      <div class="field">
+        <label>Bot Name (Maximum 9 Characters)</label>
+        <input id="botName" maxlength="9" placeholder="Enter Bot Name">
+      </div>
+    </div>
+    <div class="step" id="tcpStep3">
+      <h3>Step 3 — Guild Join</h3>
+      <div class="field">
+        <label>Do you want Guild Join?</label>
+        <select id="guildJoin">
+          <option value="">Select Option</option>
+          <option value="YES">YES</option>
+          <option value="NO">NO</option>
+          <option value="SKIP">SKIP</option>
+        </select>
+      </div>
+    </div>
+    <div class="step" id="tcpStep4">
+      <h3>Step 4 — Guild & Friend UID</h3>
+      <div class="field">
+        <label>Guild ID (Required if Guild Join = YES)</label>
+        <input id="tcpGuildId" inputmode="numeric" placeholder="Guild ID">
+      </div>
+      <div class="field"><label>Friend UID 1</label><input id="friend1" inputmode="numeric" placeholder="Optional"></div>
+      <div class="field"><label>Friend UID 2</label><input id="friend2" inputmode="numeric" placeholder="Optional"></div>
+      <div class="field"><label>Friend UID 3</label><input id="friend3" inputmode="numeric" placeholder="Optional"></div>
+      <div class="field"><label>Friend UID 4</label><input id="friend4" inputmode="numeric" placeholder="Optional"></div>
+    </div>
+    <div class="step" id="tcpStep5">
+      <h3>Step 5 — Review & Payment</h3>
+      <div id="tcpSummary"></div>
+      <div class="payment-fields"></div>
+      <button class="primary" onclick="submitTcp()">Confirm Order</button>
+      <div id="tcpMessage" class="message"></div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="tcpPrev" onclick="tcpMove(-1)">Back</button>
+      <button class="primary" id="tcpNext" onclick="tcpMove(1)">Next</button>
+    </div>
+  </div>
+  <div class="notice" id="tcpNotice"></div>
+  <div class="social"></div>
+</section>
+
+<section id="glory" class="page">
+  <button class="back" onclick="showPage('home')">← Back</button>
+  <div class="page-heading">
+    <h2>🏆 GUILD GLORY BOT</h2>
+    <p>Select a package and enter your Guild ID.</p>
+  </div>
+  <div id="gloryPackages" class="package-grid"></div>
+  <div id="gloryForm" class="panel hidden">
+    <div class="field">
+      <label>Guild ID</label>
+      <input id="gloryGuildId" inputmode="numeric" placeholder="Enter Guild ID">
+    </div>
+    <div id="glorySummary"></div>
+    <div class="payment-fields"></div>
+    <button class="primary" onclick="submitGlory()">Confirm Order</button>
+    <div id="gloryMessage" class="message"></div>
+  </div>
+  <div class="notice" id="gloryNotice"></div>
+  <div class="social"></div>
+</section>
+
+<section id="tools" class="page">
+  <button class="back" onclick="showPage('home')">← Back</button>
+  <div class="page-heading"><h2>FREE TOOLS</h2></div>
+  <div class="panel">
+    <h3>Player Bio Copy</h3>
+    <div class="field">
+      <label>Player UID</label>
+      <input id="toolPlayerUid" inputmode="numeric" placeholder="Enter Player UID">
+    </div>
+    <button class="primary" onclick="toolPlayer()">Check Player</button>
+    <div id="toolPlayerResult" class="message"></div>
+  </div>
+  <div class="panel">
+    <h3>Guild Info Checker</h3>
+    <div class="field">
+      <label>Guild UID</label>
+      <input id="toolGuildUid" inputmode="numeric" placeholder="Enter Guild UID">
+    </div>
+    <button class="primary" onclick="toolGuild()">Check Guild</button>
+    <div id="toolGuildResult" class="message"></div>
+  </div>
+  <div class="panel">
+    <h3>Free Phone Root Service</h3>
+    <p>Contact the admin for details.</p>
+    <a class="social-link whatsapp contact-card" id="rootContact" href="#" target="_blank">WhatsApp Contact</a>
+  </div>
+  <div class="social"></div>
+</section>
+
 </main>
-
-<footer id="contact">
- <div class="social">
-  <a href="#" aria-label="YouTube">▶</a>
-  <a href="#" aria-label="Facebook">f</a>
-  <a href="#" aria-label="TikTok">♪</a>
-  <a href="https://t.me/Jabedakash" aria-label="Telegram">➤</a>
-  <a href="https://wa.me/8801604884747" aria-label="WhatsApp">◉</a>
- </div>
- <strong>GENOX SHOP</strong>
- <p>সেরা দামে সেরা গেমিং সার্ভিস</p>
- <p>গেমারদের বিশ্বস্ত ঠিকানা</p>
- <small>© 2026 GENOX SHOP. All Rights Reserved.</small>
-</footer>
+<footer id="footerText"></footer>
 
 <script>
-const ADMIN = {
- name:"GENOX",
- telegram:"https://t.me/Jabedakash",
- whatsapp:"https://wa.me/8801604884747",
- nagad:"01972982173"
-};
+/* =========================================================
+   GENOX SETTINGS
+   ভবিষ্যতে সাধারণ তথ্য পরিবর্তন করতে এই অংশ এডিট করবে।
+   ========================================================= */
 
-const LIKE_PACKAGES = {
- 200:[
-  ["07 Days",1400,55],["15 Days",3000,90],
-  ["30 Days",6000,150],["60 Days",12000,300],
-  ["90 Days",18000,450]
- ],
- 400:[
-  ["07 Days",2800,150],["15 Days",6000,240],
-  ["30 Days",12000,400],["60 Days",24000,800],
-  ["90 Days",36000,1200]
- ],
- 1000:[
-  ["07 Days",7000,300],["15 Days",15000,550],
-  ["30 Days",30000,1000],["60 Days",60000,2000],
-  ["90 Days",90000,3000]
- ]
-};
+const SETTINGS = {
 
-const TCP_PACKAGES = [
- ["07 Days",130],["15 Days",275],
- ["30 Days",550],["60 Days",1100]
-];
+  SHOP_NAME: "GENOX SHOP",
+  ADMIN_NAME: "GENOX",
 
-const GLORY_PACKAGES = [
- ["4 Glory Bot",120],["8 Glory Bot",240],
- ["12 Glory Bot",360],["16 Glory Bot",480]
-];
+  CONTACT: {
+    WHATSAPP_NUMBER: "8801604884747",
+    TELEGRAM_LINK: "https://t.me/Jabedakash",
+    SUPPORT_EMAIL: "YOUR_EMAIL_HERE"
+  },
 
-const GLORY_NOTICE = `⚠️ Glory BOT অর্ডার করার আগে অবশ্যই নিজ দায়িত্বে ও নিজ রিংক্সে (ঝুঁকিতে) অর্ডার করবেন।
+  PAYMENT: {
+    NAGAD_NUMBER: "01972982173",
+    BKASH_NUMBER: "YOUR_BKASH_NUMBER",
+    ROCKET_NUMBER: "YOUR_ROCKET_NUMBER"
+  },
+
+  SOCIAL_MEDIA: {
+    WHATSAPP: "https://wa.me/8801604884747",
+    INSTAGRAM: "YOUR_INSTAGRAM_LINK",
+    FACEBOOK: "YOUR_FACEBOOK_LINK",
+    TIKTOK: "YOUR_TIKTOK_LINK",
+    YOUTUBE: "YOUR_YOUTUBE_LINK"
+  },
+
+  API: {
+    PLAYER_API: "/api/player",
+    GUILD_API: "/api/guild",
+    ORDER_API: "/api/orders"
+  },
+
+  CURRENCY: "৳",
+
+  PACKAGES: {
+    LIKES: {
+      "200": {
+        "07 Days": {likes:1400,price:55},
+        "15 Days": {likes:3000,price:90},
+        "30 Days": {likes:6000,price:150},
+        "60 Days": {likes:12000,price:300},
+        "90 Days": {likes:18000,price:450}
+      },
+      "400": {
+        "07 Days": {likes:2800,price:150},
+        "15 Days": {likes:6000,price:240},
+        "30 Days": {likes:12000,price:400},
+        "60 Days": {likes:24000,price:800},
+        "90 Days": {likes:36000,price:1200}
+      },
+      "1000": {
+        "07 Days": {likes:7000,price:300},
+        "15 Days": {likes:15000,price:550},
+        "30 Days": {likes:30000,price:1000},
+        "60 Days": {likes:60000,price:2000},
+        "90 Days": {likes:90000,price:3000}
+      }
+    },
+
+    TCP: {
+      "07 Days":130,
+      "15 Days":275,
+      "30 Days":550,
+      "60 Days":1100
+    },
+
+    GLORY: {
+      "4 Glory Bot":120,
+      "8 Glory Bot":240,
+      "12 Glory Bot":360,
+      "16 Glory Bot":480
+    }
+  },
+
+  NOTICES: {
+    LIKES: "⚠️ Likes অর্ডার করার আগে UID ও প্যাকেজ ভালোভাবে যাচাই করুন। ভুল UID দিলে অর্ডারে সমস্যা হতে পারে।",
+    TCP: "⚠️ TCP BOT অর্ডার করার আগে আপনার দেওয়া সব তথ্য ভালোভাবে যাচাই করুন।",
+    GLORY: `⚠️ Glory BOT অর্ডার করার আগে অবশ্যই নিজ দায়িত্বে ও নিজ রিংক্সে (ঝুঁকিতে) অর্ডার করবেন।
 ⚠️ Guild Setting Default করতে হবে।
 ♦️ VIP+ 4 BOT: ৬০K-৭০০K+ Glory।
 💯 VIP+ এ ৬০K এর কম হলে আবার বট দেওয়া হবে।
 ⚠️ Glory কম-বেশি সম্পূর্ণ Server-এর ওপর নির্ভরশীল।
-⚠️ BOT ব্যবহারে Guild-এর কোনো সমস্যা হলে কর্তৃপক্ষ দায়ী থাকবে না।`;
+⚠️ BOT ব্যবহারে Guild-এর কোনো সমস্যা হলে কর্তৃপক্ষ দায়ী থাকবে।`
+  },
 
-let service="",step=0,data={},playerBio="";
+  FAQ: [
+    {
+      question:"কত দিনে Likes পাওয়া যাবে?",
+      answer:"আপনার নির্বাচিত প্যাকেজের সময় অনুযায়ী Likes সরবরাহ করা হবে।"
+    },
+    {
+      question:"অর্ডার কীভাবে করব?",
+      answer:"সার্ভিস নির্বাচন করে প্যাকেজ ও প্রয়োজনীয় তথ্য দিন। তারপর Payment ও Transaction ID দিয়ে Confirm করুন।"
+    },
+    {
+      question:"পেমেন্ট কীভাবে যাচাই হবে?",
+      answer:"অ্যাডমিন আপনার দেওয়া Transaction ID নিজে যাচাই করবেন।"
+    },
+    {
+      question:"অর্ডারের সমস্যা হলে কী করব?",
+      answer:"ওয়েবসাইটের WhatsApp বা Telegram Contact ব্যবহার করে অ্যাডমিনের সঙ্গে যোগাযোগ করুন।"
+    }
+  ],
 
-function openService(type){
- service=type;step=0;data={};
- document.getElementById("order").classList.add("active");
- document.getElementById("order").scrollIntoView({behavior:"smooth"});
- renderStep();
+  DESIGN: {
+    BACKGROUND:"#080d1b",
+    CARD:"#111b30",
+    BLUE:"#3988ff",
+    PURPLE:"#8757ff",
+    TEXT:"#f4f7ff"
+  },
+
+  FOOTER_TEXT:"© GENOX SHOP — All Rights Reserved"
+};
+
+/* =========================================================
+   END OF GENOX SETTINGS
+   ========================================================= */
+
+document.documentElement.style.setProperty("--bg",SETTINGS.DESIGN.BACKGROUND);
+document.documentElement.style.setProperty("--card",SETTINGS.DESIGN.CARD);
+document.documentElement.style.setProperty("--blue",SETTINGS.DESIGN.BLUE);
+document.documentElement.style.setProperty("--purple",SETTINGS.DESIGN.PURPLE);
+document.documentElement.style.setProperty("--text",SETTINGS.DESIGN.TEXT);
+
+const LIKE_PACKAGES=SETTINGS.PACKAGES.LIKES;
+const TCP_PACKAGES=SETTINGS.PACKAGES.TCP;
+const GLORY_PACKAGES=SETTINGS.PACKAGES.GLORY;
+
+let selectedLike=null;
+let selectedTcp=null;
+let selectedGlory=null;
+let verifiedPlayer=null;
+let tcpStep=1;
+
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function openService(id){showPage(id);}
+
+function escapeHTML(value){
+  return String(value??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
 }
 
-function field(label,id,placeholder="",type="text"){
- return `<label>${label}</label><input id="${id}" type="${type}" placeholder="${placeholder}" value="${escapeHtml(data[id]||"")}">`;
+function makeCard(title,sub,price,selected,click){
+  return `<button type="button" class="package-card ${selected?'selected':''}" onclick="${click}">
+    <strong>${escapeHTML(title)}</strong>
+    <small>${escapeHTML(sub)}</small>
+    <span class="price">${SETTINGS.CURRENCY}${price}</span>
+  </button>`;
 }
 
-function escapeHtml(value){
- return String(value??"").replace(/[&<>"']/g,c=>({
- "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
- }[c]));
-}
-
-function renderStep(){
- const box=document.getElementById("orderForm");
- const error=document.getElementById("orderError");
- error.textContent="";
- document.getElementById("orderSummary").textContent="";
- let html="";
- const titles={likes:"FREE FIRE LIKES ORDER",tcp:"FREE FIRE TCP BOT ORDER",glory:"GUILD GLORY BOT ORDER"};
- document.getElementById("orderTitle").textContent=titles[service];
- const count=service==="tcp"?5:service==="likes"?4:3;
- document.getElementById("progress").innerHTML=
- Array.from({length:5},(_,i)=>`<span class="${i<=step?"done":""}"></span>`).join("");
-
- if(service==="likes"){
-  if(step===0){
-   html=`<label>Select Likes Package</label><select id="pack">
-   <option value="">Select package</option>
-   <option>200</option><option>400</option><option>1000</option></select>`;
-  }else if(step===1){
-   html=`<label>Select Duration</label><select id="duration">
-   <option value="">Select duration</option>
-   ${LIKE_PACKAGES[data.pack].map((p,i)=>`<option value="${i}">${p[0]} — ${p[1].toLocaleString()} Likes — ৳${p[2]}</option>`).join("")}
-   </select>`;
-  }else if(step===2){
-   html=`<p>Package: ${data.pack} Likes</p>
-   <p>Duration: ${data.duration}</p>
-   <p>Total Likes: ${Number(data.totalLikes).toLocaleString()}</p>
-   <p class="price">Price: ৳${data.price}</p>
-   ${field("Free Fire UID","uid","Enter your UID")}
-   <button class="btn" onclick="verifyPlayer()">CHECK UID</button>
-   <div id="playerCheck" class="result"></div>`;
-  }else{
-   html=summaryHtml();
-  }
- }else if(service==="tcp"){
-  if(step===0){
-   html=`<label>Select Package</label><select id="duration">
-   <option value="">Select duration</option>
-   ${TCP_PACKAGES.map(p=>`<option value="${p[0]}">${p[0]} — ৳${p[1]}</option>`).join("")}
-   </select>`;
-  }else if(step===1){
-   html=field("Bot Name (Maximum 9 Characters)","botName","Bot Name")+
-   `<p class="small" id="nameCount">0/9 characters</p>`;
-  }else if(step===2){
-   html=`<label>Guild Join?</label><select id="guildJoin">
-   <option value="">Select</option><option>YES</option><option>NO</option><option>SKIP</option>
-   </select>${field("Guild ID (Required only for YES)","guildId","Guild ID")}`;
-  }else if(step===3){
-   html="";
-   for(let i=1;i<=4;i++)html+=field(`Friend UID ${i} (Optional)`,`friend${i}`,`Friend UID ${i}`);
-   html+=`<p class="small">সর্বোচ্চ ৪টি UID দিতে পারবে।</p>`;
-  }else{
-   html=summaryHtml();
-  }
- }else{
-  if(step===0){
-   html=`<p class="result">${GLORY_NOTICE}</p>
-   <label>Select Package</label><select id="pack">
-   <option value="">Select package</option>
-   ${GLORY_PACKAGES.map((p,i)=>`<option value="${i}">${p[0]} — ৳${p[1]}</option>`).join("")}
-   </select>`;
-  }else if(step===1){
-   html=field("Guild UID","guildId","Enter Guild UID");
-  }else{
-   html=summaryHtml();
-  }
- }
-
- box.innerHTML=html+`
- <div style="display:flex;gap:10px;margin-top:15px">
- ${step>0?'<button class="btn secondary" onclick="previousStep()">Previous</button>':""}
- <button class="btn" onclick="nextStep()">${step===count-1?"Confirm Order":"Next"}</button>
- </div>`;
- if(service==="tcp"&&step===1){
-  document.getElementById("botName").addEventListener("input",e=>{
-   document.getElementById("nameCount").textContent=e.target.value.length+"/9 characters";
+function renderLikes(){
+  const root=document.getElementById("likesPackages");
+  root.innerHTML="";
+  Object.entries(LIKE_PACKAGES).forEach(([pack,durations])=>{
+    Object.entries(durations).forEach(([duration,values])=>{
+      root.innerHTML+=makeCard(
+        pack+" Likes",
+        duration+" • "+values.likes.toLocaleString()+" Total Likes",
+        values.price,
+        selectedLike?.pack===pack&&selectedLike?.duration===duration,
+        `selectLikes('${pack}','${duration}')`
+      );
+    });
   });
- }
 }
 
-function collect(){
- const ids={
- likes:step===0?["pack"]:step===1?["duration"]:step===2?["uid"]:[],
- tcp:step===0?["duration"]:step===1?["botName"]:step===2?["guildJoin","guildId"]:step===3?["friend1","friend2","friend3","friend4"]:[],
- glory:step===0?["pack"]:step===1?["guildId"]:[]
- };
- for(const id of (ids[service]||[])){
-  const el=document.getElementById(id);
-  if(el)data[id]=el.value.trim();
- }
+function selectLikes(pack,duration){
+  selectedLike={pack,duration};
+  verifiedPlayer=null;
+  renderLikes();
+  document.getElementById("likesForm").classList.remove("hidden");
+  document.getElementById("likesPayment").classList.add("hidden");
+  document.getElementById("playerResult").textContent="";
 }
 
-function nextStep(){
- collect();
- const error=document.getElementById("orderError");
- error.textContent="";
- if(service==="likes"){
-  if(step===0&&!data.pack)return error.textContent="একটি Likes Package নির্বাচন করুন।";
-  if(step===1){
-   if(data.duration==="")return error.textContent="Duration নির্বাচন করুন।";
-   const p=LIKE_PACKAGES[data.pack][Number(data.duration)];
-   data.totalLikes=p[1];data.price=p[2];data.duration=p[0];
+function paymentHTML(){
+  const methods=[
+    ["Nagad",SETTINGS.PAYMENT.NAGAD_NUMBER],
+    ["bKash",SETTINGS.PAYMENT.BKASH_NUMBER],
+    ["Rocket",SETTINGS.PAYMENT.ROCKET_NUMBER]
+  ].filter(item=>item[1]&&!item[1].startsWith("YOUR_"));
+
+  return `
+    <div class="panel">
+      <h3>Payment Information</h3>
+      ${methods.length?`
+      <div class="field">
+        <label>Payment Method</label>
+        <select class="pay-method">
+          ${methods.map(m=>`<option value="${escapeHTML(m[0])}">${escapeHTML(m[0])} — ${escapeHTML(m[1])}</option>`).join("")}
+        </select>
+      </div>
+      <p class="message">Payment Number: <strong class="pay-number">${escapeHTML(methods[0][1])}</strong></p>
+      `:`<p class="message error">Payment number has not been configured.</p>`}
+      <div class="field">
+        <label>Transaction ID</label>
+        <input class="txn-id" placeholder="Enter Transaction ID">
+      </div>
+    </div>`;
+}
+
+document.querySelectorAll(".payment-fields").forEach(el=>el.innerHTML=paymentHTML());
+
+document.addEventListener("change",function(event){
+  if(event.target.classList.contains("pay-method")){
+    const container=event.target.closest(".payment-fields");
+    if(!container)return;
+    const selected=event.target.value;
+    const item={
+      Nagad:SETTINGS.PAYMENT.NAGAD_NUMBER,
+      bKash:SETTINGS.PAYMENT.BKASH_NUMBER,
+      Rocket:SETTINGS.PAYMENT.ROCKET_NUMBER
+    };
+    const number=container.querySelector(".pay-number");
+    if(number)number.textContent=item[selected]||"";
   }
-  if(step===2&&!data.playerName)return error.textContent="আগে UID Check করুন।";
-  if(step===3)return submitOrder();
- }else if(service==="tcp"){
-  if(step===0&&!data.duration)return error.textContent="Package নির্বাচন করুন।";
-  if(step===1&&(!data.botName||data.botName.length>9))return error.textContent="Bot Name ১-৯ অক্ষরের মধ্যে দিন।";
-  if(step===2&&!data.guildJoin)return error.textContent="Guild Join নির্বাচন করুন।";
-  if(step===2&&data.guildJoin==="YES"&&!data.guildId)return error.textContent="Guild ID দিন।";
-  if(step===4)return submitOrder();
-  if(step===0)data.price=TCP_PACKAGES.find(p=>p[0]===data.duration)[1];
- }else{
-  if(step===0&&data.pack==="")return error.textContent="Package নির্বাচন করুন।";
-  if(step===1&&!data.guildId)return error.textContent="Guild UID দিন।";
-  if(step===2)return submitOrder();
-  if(step===0){
-   const p=GLORY_PACKAGES[Number(data.pack)];
-   data.package=p[0];data.price=p[1];
+});
+
+function paymentData(container){
+  const box=document.querySelector(container);
+  const method=box.querySelector(".pay-method");
+  const txn=box.querySelector(".txn-id").value.trim();
+  if(!method)throw new Error("Payment method is not configured.");
+  if(!txn)throw new Error("Transaction ID লিখুন।");
+  return {paymentMethod:method.value,transactionId:txn};
+}
+
+function summaryHTML(rows){
+  return `<div class="panel">${rows.map(r=>
+    `<div class="summary-row"><span>${escapeHTML(r[0])}</span><strong>${escapeHTML(r[1])}</strong></div>`
+  ).join("")}</div>`;
+}
+
+async function checkPlayer(){
+  const uid=document.getElementById("likesUid").value.trim();
+  const result=document.getElementById("playerResult");
+  result.textContent="Checking UID...";
+  result.className="message";
+
+  if(!selectedLike){result.textContent="আগে একটি প্যাকেজ নির্বাচন করুন।";return;}
+  if(!/^[0-9]+$/.test(uid)){
+    result.textContent="সঠিক UID দিন।";
+    result.className="message error";
+    return;
   }
- }
- step++;
- renderStep();
+
+  try{
+    const res=await fetch(SETTINGS.API.PLAYER_API+"?uid="+encodeURIComponent(uid));
+    const data=await res.json();
+    if(!res.ok||!data.success)throw new Error(data.error||"Player not found");
+
+    verifiedPlayer={uid,playerName:data.player_name};
+    result.textContent="Player: "+data.player_name+" — UID Verified";
+    result.className="message success";
+
+    const pkg=LIKE_PACKAGES[selectedLike.pack][selectedLike.duration];
+    document.getElementById("likesSummary").innerHTML=summaryHTML([
+      ["Player UID",uid],
+      ["Player Name",data.player_name],
+      ["Package",selectedLike.pack+" Likes"],
+      ["Duration",selectedLike.duration],
+      ["Total Likes",pkg.likes.toLocaleString()],
+      ["Total Price",SETTINGS.CURRENCY+pkg.price]
+    ]);
+    document.getElementById("likesPayment").classList.remove("hidden");
+  }catch(e){
+    result.textContent=e.message;
+    result.className="message error";
+  }
 }
 
-function previousStep(){if(step>0){step--;renderStep();}}
+async function sendOrder(service,data,messageId){
+  const msg=document.getElementById(messageId);
+  msg.textContent="অর্ডার পাঠানো হচ্ছে...";
+  msg.className="message";
+  try{
+    const res=await fetch(SETTINGS.API.ORDER_API,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({service,data})
+    });
+    const result=await res.json();
+    if(!res.ok||!result.success)throw new Error(result.error||"Order failed");
 
-function summaryHtml(){
- let lines=[];
- if(service==="likes"){
-  lines=[`Service: FREE FIRE LIKES`,`Package: ${data.pack} Likes`,
-  `Duration: ${data.duration}`,`UID: ${data.uid}`,
-  `Player Name: ${data.playerName}`,`Total Likes: ${data.totalLikes}`,
-  `Total Price: ৳${data.price}`];
- }else if(service==="tcp"){
-  lines=[`Service: TCP BOT`,`Package: ${data.duration}`,
-  `Bot Name: ${data.botName}`,`Guild Join: ${data.guildJoin}`,
-  `Guild ID: ${data.guildId||"N/A"}`,
-  ...[1,2,3,4].map(i=>`Friend UID ${i}: ${data["friend"+i]||"N/A"}`),
-  `Total Price: ৳${data.price}`];
-  return `<h3>FuHx SHOP - TCP BOT RECEIPT</h3><p>${lines.map(escapeHtml).join("<br>")}</p>`;
- }else{
-  lines=[`Service: GUILD GLORY BOT`,`Package: ${data.package}`,
-  `Guild ID: ${data.guildId}`,`Total Price: ৳${data.price}`];
- }
- return `<h3>Order Summary</h3><p>${lines.map(escapeHtml).join("<br>")}</p>
- <p>Admin: ${ADMIN.name}</p><p>Payment: Nagad ${ADMIN.nagad}</p>`;
+    msg.textContent="Order submitted! Order ID: "+result.order_id+
+      (result.telegram_sent?" — Admin notification sent.":" — Order saved, but Telegram notification failed.");
+    msg.className="message success";
+  }catch(e){
+    msg.textContent=e.message;
+    msg.className="message error";
+  }
 }
 
-async function verifyPlayer(){
- const uid=document.getElementById("uid").value.trim();
- const output=document.getElementById("playerCheck");
- if(!uid){output.textContent="UID দিন।";return;}
- output.textContent="Checking...";
- try{
-  const r=await fetch("/api/player?uid="+encodeURIComponent(uid));
-  const j=await r.json();
-  if(!r.ok||!j.success)throw new Error(j.error||"Player পাওয়া যায়নি");
-  data.uid=uid;data.playerName=j.player_name;
-  output.textContent="Player Name: "+j.player_name+"\nUID Verified";
- }catch(e){output.textContent=e.message;}
+async function submitLikes(){
+  if(!verifiedPlayer||!selectedLike)return;
+  try{
+    const payment=paymentData("#likesPayment");
+    const pkg=LIKE_PACKAGES[selectedLike.pack][selectedLike.duration];
+    await sendOrder("likes",{
+      pack:selectedLike.pack,
+      duration:selectedLike.duration,
+      uid:verifiedPlayer.uid,
+      playerName:verifiedPlayer.playerName,
+      totalLikes:pkg.likes,
+      price:pkg.price,
+      ...payment
+    },"likesMessage");
+  }catch(e){
+    const msg=document.getElementById("likesMessage");
+    msg.textContent=e.message;
+    msg.className="message error";
+  }
 }
 
-async function submitOrder(){
- const error=document.getElementById("orderError");
- error.textContent="অর্ডার পাঠানো হচ্ছে...";
- const payload={service,data,admin:"GENOX"};
- try{
-  const r=await fetch("/api/orders",{
-   method:"POST",headers:{"Content-Type":"application/json"},
-   body:JSON.stringify(payload)
+function renderTcp(){
+  const root=document.getElementById("tcpPackages");
+  root.innerHTML="";
+  Object.entries(TCP_PACKAGES).forEach(([duration,price])=>{
+    root.innerHTML+=makeCard(duration,"TCP BOT Package",price,
+      selectedTcp===duration,`selectTcp('${duration}')`);
   });
-  const j=await r.json();
-  if(!r.ok||!j.success)throw new Error(j.error||"Order submit হয়নি");
-  document.getElementById("orderForm").innerHTML=
-  `<div class="card"><h3>Order Submitted</h3>
-  <p>Order ID: ${escapeHtml(j.order_id)}</p>
-  <p>Status: Pending Payment</p>
-  <p>Payment: Nagad ${ADMIN.nagad}</p>
-  <a href="${ADMIN.telegram}" target="_blank"><button class="btn">Contact Admin</button></a>
-  </div>`;
-  error.textContent="";
- }catch(e){
-  error.textContent=e.message+" — Backend setup সম্পন্ন হলে অর্ডার চালু হবে।";
- }
+}
+function selectTcp(duration){
+  selectedTcp=duration;
+  renderTcp();
+}
+function showTcpStep(){
+  for(let i=1;i<=5;i++){
+    document.getElementById("tcpStep"+i).classList.toggle("active",i===tcpStep);
+  }
+  document.getElementById("tcpCount").textContent="Step "+tcpStep+" of 5";
+  document.getElementById("tcpPrev").style.visibility=tcpStep===1?"hidden":"visible";
+  document.getElementById("tcpNext").classList.toggle("hidden",tcpStep===5);
+  if(tcpStep===5)renderTcpSummary();
+}
+function tcpMove(direction){
+  if(direction===1){
+    if(tcpStep===1&&!selectedTcp){alert("একটি TCP package নির্বাচন করুন।");return;}
+    if(tcpStep===2&&!document.getElementById("botName").value.trim()){alert("Bot Name লিখুন।");return;}
+    if(tcpStep===3&&!document.getElementById("guildJoin").value){alert("Guild Join নির্বাচন করুন।");return;}
+    if(tcpStep===4){
+      const join=document.getElementById("guildJoin").value;
+      const gid=document.getElementById("tcpGuildId").value.trim();
+      if(join==="YES"&&!/^[0-9]+$/.test(gid)){alert("সঠিক Guild ID দিন।");return;}
+      for(let i=1;i<=4;i++){
+        const v=document.getElementById("friend"+i).value.trim();
+        if(v&&!/^[0-9]+$/.test(v)){alert("Friend UID-তে শুধু সংখ্যা দিন।");return;}
+      }
+    }
+  }
+  tcpStep=Math.max(1,Math.min(5,tcpStep+direction));
+  showTcpStep();
+}
+function renderTcpSummary(){
+  const price=TCP_PACKAGES[selectedTcp];
+  document.getElementById("tcpSummary").innerHTML=summaryHTML([
+    ["Package",selectedTcp],
+    ["Bot Name",document.getElementById("botName").value],
+    ["Guild Join",document.getElementById("guildJoin").value],
+    ["Guild ID",document.getElementById("tcpGuildId").value||"N/A"],
+    ["Total Price",SETTINGS.CURRENCY+price]
+  ]);
+}
+async function submitTcp(){
+  try{
+    const payment=paymentData("#tcpStep5");
+    const data={
+      duration:selectedTcp,
+      botName:document.getElementById("botName").value.trim(),
+      guildJoin:document.getElementById("guildJoin").value,
+      guildId:document.getElementById("tcpGuildId").value.trim(),
+      price:TCP_PACKAGES[selectedTcp],
+      ...payment
+    };
+    for(let i=1;i<=4;i++)data["friend"+i]=document.getElementById("friend"+i).value.trim();
+    await sendOrder("tcp",data,"tcpMessage");
+  }catch(e){
+    const msg=document.getElementById("tcpMessage");
+    msg.textContent=e.message;
+    msg.className="message error";
+  }
 }
 
-async function checkGuild(){
- const uid=document.getElementById("guildUid").value.trim();
- const out=document.getElementById("guildResult");
- if(!uid){out.textContent="Guild UID দিন।";return;}
- out.textContent="Checking...";
- try{
-  const r=await fetch("/api/guild?uid="+encodeURIComponent(uid));
-  const j=await r.json();
-  if(!r.ok||!j.success)throw new Error(j.error||"তথ্য পাওয়া যায়নি");
-  out.textContent=JSON.stringify(j.data,null,2);
- }catch(e){out.textContent=e.message;}
+function renderGlory(){
+  const root=document.getElementById("gloryPackages");
+  root.innerHTML="";
+  Object.entries(GLORY_PACKAGES).forEach(([pack,price])=>{
+    root.innerHTML+=makeCard(pack,"Guild Glory Package",price,
+      selectedGlory===pack,`selectGlory('${pack}')`);
+  });
+}
+function selectGlory(pack){
+  selectedGlory=pack;
+  renderGlory();
+  document.getElementById("gloryForm").classList.remove("hidden");
+  document.getElementById("glorySummary").innerHTML=summaryHTML([
+    ["Package",pack],
+    ["Total Price",SETTINGS.CURRENCY+GLORY_PACKAGES[pack]]
+  ]);
+}
+async function submitGlory(){
+  try{
+    const guildId=document.getElementById("gloryGuildId").value.trim();
+    if(!selectedGlory)throw new Error("একটি প্যাকেজ নির্বাচন করুন।");
+    if(!/^[0-9]+$/.test(guildId))throw new Error("সঠিক Guild ID দিন।");
+    const payment=paymentData("#gloryForm");
+    await sendOrder("glory",{
+      package:selectedGlory,
+      guildId,
+      price:GLORY_PACKAGES[selectedGlory],
+      ...payment
+    },"gloryMessage");
+  }catch(e){
+    const msg=document.getElementById("gloryMessage");
+    msg.textContent=e.message;
+    msg.className="message error";
+  }
 }
 
-async function checkBio(){
- const uid=document.getElementById("bioUid").value.trim();
- const out=document.getElementById("bioResult");
- if(!uid){out.textContent="Player UID দিন।";return;}
- out.textContent="Checking...";
- try{
-  const r=await fetch("/api/player?uid="+encodeURIComponent(uid));
-  const j=await r.json();
-  if(!r.ok||!j.success)throw new Error(j.error||"তথ্য পাওয়া যায়নি");
-  playerBio=j.bio||"";
-  if(!playerBio)throw new Error("এই Player-এর Bio পাওয়া যায়নি।");
-  out.textContent=playerBio;
-  document.getElementById("copyBio").classList.remove("hidden");
- }catch(e){out.textContent=e.message;}
+async function toolPlayer(){
+  const uid=document.getElementById("toolPlayerUid").value.trim();
+  const out=document.getElementById("toolPlayerResult");
+  if(!/^[0-9]+$/.test(uid)){out.textContent="সঠিক UID দিন।";return;}
+  out.textContent="Loading...";
+  try{
+    const r=await fetch(SETTINGS.API.PLAYER_API+"?uid="+encodeURIComponent(uid));
+    const d=await r.json();
+    if(!r.ok||!d.success)throw new Error(d.error||"Not found");
+    out.innerHTML="";
+    const name=document.createElement("p");
+    name.textContent="Player: "+d.player_name;
+    const bio=document.createElement("p");
+    bio.textContent="Bio: "+(d.bio||"No bio available");
+    const copy=document.createElement("button");
+    copy.className="secondary";
+    copy.textContent="Copy Bio";
+    copy.onclick=()=>navigator.clipboard.writeText(d.bio||"");
+    out.append(name,bio,copy);
+  }catch(e){out.textContent=e.message;}
+}
+async function toolGuild(){
+  const uid=document.getElementById("toolGuildUid").value.trim();
+  const out=document.getElementById("toolGuildResult");
+  if(!/^[0-9]+$/.test(uid)){out.textContent="সঠিক Guild UID দিন।";return;}
+  out.textContent="Loading...";
+  try{
+    const r=await fetch(SETTINGS.API.GUILD_API+"?uid="+encodeURIComponent(uid));
+    const d=await r.json();
+    if(!r.ok||!d.success)throw new Error(d.error||"Guild information unavailable");
+    out.textContent=JSON.stringify(d.data,null,2);
+  }catch(e){out.textContent=e.message;}
 }
 
-function copyPlayerBio(){
- if(playerBio)navigator.clipboard.writeText(playerBio);
+function renderSocial(){
+  const links=SETTINGS.SOCIAL_MEDIA;
+  const items=[
+    ["WHATSAPP","WhatsApp","☘","whatsapp"],
+    ["INSTAGRAM","Instagram","◎","instagram"],
+    ["FACEBOOK","Facebook","f","facebook"],
+    ["TIKTOK","TikTok","♪","tiktok"],
+    ["YOUTUBE","YouTube","▶","youtube"]
+  ];
+  return `<h3>FOLLOW OUR SOCIAL MEDIA</h3><div class="social-grid">`+
+    items.filter(item=>{
+      const url=links[item[0]];
+      return url&&url!=="YOUR_"+item[0]+"_LINK";
+    }).map(item=>`
+      <a class="social-link ${item[3]}" href="${escapeHTML(links[item[0]])}" target="_blank" rel="noopener">
+        <span class="symbol">${item[2]}</span>${item[1]}
+      </a>`).join("")+
+    `</div>`;
 }
+
+function renderFaq(){
+  document.getElementById("faqList").innerHTML=SETTINGS.FAQ.map(item=>
+    `<div class="faq-item"><strong>${escapeHTML(item.question)}</strong><p>${escapeHTML(item.answer)}</p></div>`
+  ).join("");
+}
+
+function applySettings(){
+  document.title=SETTINGS.SHOP_NAME;
+  document.getElementById("siteLogo").innerHTML=
+    escapeHTML(SETTINGS.SHOP_NAME.split(" ")[0])+
+    ' <span>'+escapeHTML(SETTINGS.SHOP_NAME.split(" ").slice(1).join(" "))+'</span>';
+
+  document.getElementById("welcomeTitle").innerHTML=
+    'WELCOME TO <span>'+escapeHTML(SETTINGS.SHOP_NAME)+'</span>';
+
+  document.getElementById("likesNotice").textContent=SETTINGS.NOTICES.LIKES;
+  document.getElementById("tcpNotice").textContent=SETTINGS.NOTICES.TCP;
+  document.getElementById("gloryNotice").textContent=SETTINGS.NOTICES.GLORY;
+  document.getElementById("footerText").textContent=SETTINGS.FOOTER_TEXT;
+
+  document.getElementById("rootContact").href=SETTINGS.SOCIAL_MEDIA.WHATSAPP;
+  document.getElementById("homeSocial").innerHTML=renderSocial();
+  document.querySelectorAll(".social:not(#homeSocial)").forEach(el=>{
+    el.innerHTML=renderSocial();
+  });
+}
+
+applySettings();
+renderFaq();
+renderLikes();
+renderTcp();
+renderGlory();
+showTcpStep();
 </script>
 </body>
 </html>
