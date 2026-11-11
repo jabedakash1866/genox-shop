@@ -1,8 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fb">
 <title>GENOX SHOP</title>
 <style>
 :root{--bg:#f5f7fb;--card:#fff;--p:#1f6feb;--pl:#e7f0ff;--tx:#18212f;--mu:#667085;--bd:#e4e9f2;--ok:#16a34a}
@@ -24,7 +26,7 @@ a{color:inherit;text-decoration:none}
 .svc{display:flex;flex-wrap:wrap;justify-content:center;gap:18px 10px}
 .svc a{width:46%;text-align:center;font-weight:700;font-size:14px}
 .ic{width:72px;height:72px;border-radius:50%;background:var(--pl);border:1px solid #cfe0ff;display:grid;place-items:center;font-size:30px;margin:0 auto 6px;overflow:hidden}
-.ic.sm{width:44px;height:44px;font-size:22px;margin:0 0 6px;flex:none}
+.ic.sm{width:44px;height:44px;font-size:22px;margin:0;flex:none}
 .ic img{width:100%;height:100%;object-fit:cover}
 .tools{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tools .card{margin:0;text-align:center;font-weight:700;font-size:14px}
@@ -50,7 +52,6 @@ input,select{width:100%;border:1px solid var(--bd);border-radius:12px;padding:12
 .steps{display:flex;gap:8px;margin-bottom:10px}
 .steps i{flex:1;text-align:center;font-style:normal;font-size:12px;padding:5px 0;border-radius:8px;background:#eef1f6;color:var(--mu);font-weight:700}
 .steps i.on{background:var(--p);color:#fff}
-.pk{margin-bottom:6px}
 .filters{display:flex;gap:8px;margin-bottom:12px}
 .filters button{flex:1;padding:9px 4px;border:1px solid var(--bd);background:#fff;border-radius:999px;font-size:13px;font-weight:700;color:var(--mu)}
 .filters button.on{background:var(--p);color:#fff;border-color:var(--p)}
@@ -74,6 +75,7 @@ details{margin-top:8px}summary{color:var(--p);font-weight:700;cursor:pointer}
 #sheet .x{position:absolute;right:12px;top:10px;border:0;background:#eef1f6;border-radius:50%;width:32px;height:32px}
 #toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#18212f;color:#fff;padding:10px 16px;border-radius:12px;z-index:60;display:none;max-width:90%;font-size:14px}
 pre{white-space:pre-wrap;word-break:break-word;background:#f5f7fb;border-radius:12px;padding:12px;font-family:inherit}
+.small{font-size:12px}
 </style>
 </head>
 <body>
@@ -88,125 +90,342 @@ pre{white-space:pre-wrap;word-break:break-word;background:#f5f7fb;border-radius:
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <script>
-const C=window.GENOX_CONFIG;
+'use strict';
+
+const C=window.GENOX_CONFIG||{};
 const $=s=>document.querySelector(s);
-const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;T'[m]}));
-const taka=n=>'৳'+Number(n).toLocaleString('en-US');
-const fmt=n=>Number(n).toLocaleString('en-US');
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const taka=n=>'৳'+Number(n||0).toLocaleString('en-US');
+const fmt=n=>Number(n||0).toLocaleString('en-US');
 const pad=n=>String(n).padStart(2,'0');
-const SVC={likes:{n:'Free Fire Likes',i:'❤️'},tcp:{n:'TCP Bot',i:'🤖'},glory:{n:'Guild Glory Bot',i:'🏆'}};
-const TOOLS=[{k:'root',n:'Phone Root Service',i:'📱'},{k:'guild',n:'Guild Info Checker',i:'🛡️'},{k:'bio',n:'Player Bio Copy',i:'📋'},{k:'player',n:'Player Info',i:'👤'}];
+
+const SVC={
+ likes:{n:'Free Fire Likes',i:'❤️'},
+ tcp:{n:'TCP Bot',i:'🤖'},
+ glory:{n:'Guild Glory Bot',i:'🏆'}
+};
+const TOOLS=[
+ {k:'root',n:'Phone Root Service',i:'📱'},
+ {k:'guild',n:'Guild Info Checker',i:'🛡️'},
+ {k:'bio',n:'Player Bio Copy',i:'📋'},
+ {k:'player',n:'Player Info',i:'👤'}
+];
 const PAYN={nagad:'Nagad',bkash:'bKash',rocket:'Rocket'};
-const SOC=[['youtube','YouTube'],['facebook','Facebook'],['tiktok','TikTok'],['telegram','Telegram'],['instagram','Instagram'],['whatsapp','WhatsApp']];
-const STB={pending:'Pending',processing:'Processing',completed:'Completed',cancelled:'Cancelled',rejected:'Rejected'};
-let sb=null,session=null,profile=null,S={of:'all',wiz:null};
+const SOC=[
+ ['youtube','YouTube'],['facebook','Facebook'],['tiktok','TikTok'],
+ ['telegram','Telegram'],['instagram','Instagram'],['whatsapp','WhatsApp']
+];
+const STB={
+ pending:'Pending',processing:'Processing',completed:'Completed',
+ cancelled:'Cancelled',rejected:'Rejected'
+};
 
-function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',2800)}
-function openSheet(h){$('#sheet').innerHTML='<div class="bd" data-act="close"></div><div class="box"><button class="x" data-act="close">✕</button>'+h+'</div>';$('#sheet').style.display='block'}
-function closeSheet(){$('#sheet').style.display='none';$('#sheet').innerHTML=''}
-function link(k,v){v=String(v||'').trim();if(!v)return'';if(/^https?:/i.test(v))return v;if(k==='whatsapp')return 'https://wa.me/'+v.replace(/\D/g,'');if(k==='telegram')return 'https://t.me/'+v.replace('@','');return ''}
-function img(src,fb){return src?'<img src="'+esc(src)+'" alt="" onerror="this.style.display=\'none\'">':fb}
-function sumHtml(a){return '<div class="sum">'+a.map(r=>'<div><span>'+esc(r[0])+'</span><b>'+esc(r[1])+'</b></div>').join('')+'</div>'}
-function findPkg(id){for(const c in C.likes){const p=C.likes[c].packages.find(x=>x.id===id);if(p)return{p,cat:c}}
-let p=C.tcp.packages.find(x=>x.id===id);if(p)return{p,cat:''};p=C.glory.packages.find(x=>x.id===id);if(p)return{p,cat:''};return null}
+let sb=null,session=null,profile=null;
+let S={of:'all',orders:[],wiz:null};
 
-async function loadProfile(){profile=null;if(sb&&session){const r=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();profile=r.data||null}}
-function header(){$('#logo').innerHTML=img(C.images.logo,'G')||'G';$('#bn').textContent=C.shopName;$('#wal').textContent='৳ '+fmt(profile?profile.wallet_balance||0:0)}
-function loginBtns(){return '<button class="btn" data-act="login" data-p="google">Google দিয়ে লগইন</button><button class="btn alt" data-act="login" data-p="facebook">Facebook দিয়ে লগইন</button>'}
-function needLogin(){if(session)return true;sessionStorage.setItem('gx_back',location.hash||'#/home');openSheet('<h3>লগইন প্রয়োজন</h3><p class="mu" style="margin-top:6px">অর্ডার করতে আগে লগইন করুন।</p>'+loginBtns());return false}
-async function login(p){if(!sb)return toast('Supabase সেটিং যোগ করা হয়নি');if(!sessionStorage.getItem('gx_back'))sessionStorage.setItem('gx_back',location.hash||'#/home');const r=await sb.auth.signInWithOAuth({provider:p,options:{redirectTo:location.origin+location.pathname}});if(r.error)toast(r.error.message)}
-
+function toast(m){
+ const t=$('#toast');
+ t.textContent=m;
+ t.style.display='block';
+ clearTimeout(toast.t);
+ toast.t=setTimeout(()=>t.style.display='none',2800);
+}
+function openSheet(h){
+ $('#sheet').innerHTML='<div class="bd" data-act="close"></div><div class="box"><button class="x" data-act="close">✕</button>'+h+'</div>';
+ $('#sheet').style.display='block';
+}
+function closeSheet(){
+ $('#sheet').style.display='none';
+ $('#sheet').innerHTML='';
+}
+function link(k,v){
+ v=String(v||'').trim();
+ if(!v)return '';
+ if(/^https?:\/\//i.test(v))return v;
+ if(k==='whatsapp')return 'https://wa.me/'+v.replace(/\D/g,'');
+ if(k==='telegram')return 'https://t.me/'+v.replace('@','');
+ return '';
+}
+function img(src,fb){
+ return src
+ ?'<img src="'+esc(src)+'" alt="" onerror="this.style.display=\'none\'">'
+ :fb;
+}
+function sumHtml(a){
+ return '<div class="sum">'+a.map(r=>'<div><span>'+esc(r[0])+'</span><b>'+esc(r[1])+'</b></div>').join('')+'</div>';
+}
+function findPkg(id){
+ for(const c in (C.likes||{})){
+  const group=C.likes[c];
+  const p=(group.packages||[]).find(x=>x.id===id);
+  if(p)return {p,cat:c};
+ }
+ let p=(C.tcp?.packages||[]).find(x=>x.id===id);
+ if(p)return {p,cat:''};
+ p=(C.glory?.packages||[]).find(x=>x.id===id);
+ if(p)return {p,cat:''};
+ return null;
+}
+async function loadProfile(){
+ profile=null;
+ if(sb&&session){
+  const r=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
+  if(!r.error)profile=r.data||null;
+ }
+}
+function header(){
+ $('#logo').innerHTML=img(C.images?.logo,'G')||'G';
+ $('#bn').textContent=C.shopName||'GENOX SHOP';
+ $('#wal').textContent='৳ '+fmt(profile?.wallet_balance||0);
+}
+function loginBtns(){
+ return '<button class="btn" data-act="login" data-p="google">Google দিয়ে লগইন</button>'+
+ '<button class="btn alt" data-act="login" data-p="facebook">Facebook দিয়ে লগইন</button>';
+}
+function needLogin(){
+ if(session)return true;
+ sessionStorage.setItem('gx_back',location.hash||'#/home');
+ openSheet('<h3>লগইন প্রয়োজন</h3><p class="mu" style="margin-top:6px">অর্ডার করতে আগে লগইন করুন।</p>'+loginBtns());
+ return false;
+}
+async function login(p){
+ if(!sb)return toast('Supabase সেটিং যোগ করা হয়নি');
+ sessionStorage.setItem('gx_back',location.hash||'#/home');
+ const r=await sb.auth.signInWithOAuth({
+  provider:p,
+  options:{redirectTo:location.origin+location.pathname}
+ });
+ if(r.error)toast(r.error.message);
+}
 async function send(payload,btn){
- const old=btn.textContent;btn.disabled=true;btn.textContent='অপেক্ষা করুন...';
+ const old=btn.textContent;
+ btn.disabled=true;
+ btn.textContent='অপেক্ষা করুন...';
  try{
   const s=await sb.auth.getSession();
-  const r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+s.data.session.access_token},body:JSON.stringify(payload)});
+  const token=s.data?.session?.access_token;
+  if(!token)throw new Error('আপনার লগইন সেশন পাওয়া যায়নি');
+  const r=await fetch('/api/orders',{
+   method:'POST',
+   headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+   body:JSON.stringify(payload)
+  });
   const j=await r.json().catch(()=>({}));
   if(!r.ok||!j.ok)throw new Error(j.error||'অর্ডার সম্পন্ন হয়নি');
-  return j.order;
- }catch(e){toast(e.message||'সার্ভারে সমস্যা');btn.disabled=false;btn.textContent=old;return null}
+  return j.order||j.data||j;
+ }catch(e){
+  toast(e.message||'সার্ভারে সমস্যা');
+  btn.disabled=false;
+  btn.textContent=old;
+  return null;
+ }
 }
-async function callApi(path){const r=await fetch(path);const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||'তথ্য পাওয়া যায়নি');return j.data}
-
+async function callApi(path){
+ const r=await fetch(path);
+ const j=await r.json().catch(()=>({}));
+ if(!r.ok||j.ok===false)throw new Error(j.error||'তথ্য পাওয়া যায়নি');
+ return j.data??j;
+}
 function payFields(){
- const pm=Object.entries(C.payment).filter(e=>String(e[1]).trim());
+ const pm=Object.entries(C.payment||{}).filter(e=>String(e[1]||'').trim());
  if(!pm.length)return '<div class="warn">পেমেন্ট তথ্য এখনো যোগ করা হয়নি।</div>';
- return '<div class="paybox">'+pm.map(e=>'<div><b>'+PAYN[e[0]]+'</b>: '+esc(e[1])+'</div>').join('')+'<small>টাকা পাঠিয়ে Transaction ID দিন।</small></div><label>Payment Method</label><select id="f_pay">'+pm.map(e=>'<option value="'+e[0]+'">'+PAYN[e[0]]+'</option>').join('')+'</select><label>Transaction ID</label><input id="f_txn" placeholder="Transaction ID">';
+ return '<div class="paybox">'+pm.map(e=>'<div><b>'+esc(PAYN[e[0]]||e[0])+'</b>: '+esc(e[1])+'</div>').join('')+
+ '<small>টাকা পাঠিয়ে Transaction ID দিন।</small></div>'+
+ '<label>Payment Method</label><select id="f_pay">'+pm.map(e=>'<option value="'+esc(e[0])+'">'+esc(PAYN[e[0]]||e[0])+'</option>').join('')+'</select>'+
+ '<label>Transaction ID</label><input id="f_txn" placeholder="Transaction ID">';
 }
-function contactFields(n,p){return '<label>আপনার নাম</label><input id="f_name" value="'+esc(n!=null?n:(profile&&profile.display_name)||'')+'"><label>ফোন / WhatsApp নম্বর</label><input id="f_phone" inputmode="tel" value="'+esc(p||'')+'">'}
+function contactFields(n,p){
+ return '<label>আপনার নাম</label><input id="f_name" value="'+esc(n!=null?n:(profile?.display_name||''))+'">'+
+ '<label>ফোন / WhatsApp নম্বর</label><input id="f_phone" inputmode="tel" value="'+esc(p||'')+'">';
+}
 const g=id=>(($('#'+id)||{}).value||'').trim();
-function checkContact(n,p){if(n.length<2)return 'নাম লিখুন';if(!/^\+?\d{8,15}$/.test(p))return 'সঠিক ফোন নম্বর লিখুন';return ''}
+function checkContact(n,p){
+ if(n.length<2)return 'নাম লিখুন';
+ if(!/^\+?\d{8,15}$/.test(p))return 'সঠিক ফোন নম্বর লিখুন';
+ return '';
+}
 const okUid=v=>/^\d{6,14}$/.test(v);
+
+function notice(k){
+ const t=String((C.notices||{})[k]||'').trim();
+ return t?'<div class="notice">'+esc(t)+'</div>':'';
+}
+function svcHead(k){
+ return '<a class="back" href="#/home">← হোম</a>'+
+ '<div class="card head"><span class="ic sm">'+img(C.images?.[k],SVC[k].i)+'</span><h2>'+SVC[k].n+'</h2></div>'+
+ notice(k);
+}
 
 function openOrder(svc,id){
  if(!needLogin())return;
- const f=findPkg(id);if(!f)return;const p=f.p;
- const sum=svc==='likes'?[['Category',C.likes[f.cat].title],['Duration',pad(p.days)+' Days'],['Total Likes',fmt(p.total)],['Price',taka(p.price)]]:[['Package',p.bots+' BOT'],['Price',taka(p.price)]];
- openSheet('<h3>অর্ডার ফর্ম</h3>'+sumHtml(sum)+'<label>'+(svc==='likes'?'Free Fire UID':'Guild UID')+'</label><input id="f_uid" inputmode="numeric">'+contactFields()+payFields()+'<button class="btn" id="go">অর্ডার জমা দিন</button>');
+ const f=findPkg(id);
+ if(!f)return;
+ const p=f.p;
+ let packageLabel='',quantity=0,duration=0,cat='';
+ if(svc==='likes'){
+  cat=f.cat;
+  packageLabel=C.likes[cat].title;
+  quantity=p.total;
+  duration=p.days;
+ }else if(svc==='glory'){
+  packageLabel=p.bots+' BOT';
+  quantity=p.bots;
+ }else return;
+
+ const details=svc==='likes'
+ ?[['Category',packageLabel],['Duration',pad(duration)+' Days'],['Total Likes',fmt(quantity)],['Price',taka(p.price)]]
+ :[['Package',packageLabel],['Price',taka(p.price)]];
+
+ openSheet('<h3>অর্ডার ফর্ম</h3>'+sumHtml(details)+
+ '<label>'+(svc==='likes'?'Free Fire UID':'Guild UID')+'</label><input id="f_uid" inputmode="numeric">'+
+ contactFields()+payFields()+
+ '<button class="btn" id="go">অর্ডার জমা দিন</button>');
+
  $('#go').onclick=async e=>{
-  const name=g('f_name'),phone=g('f_phone'),uid=g('f_uid'),pay=g('f_pay'),txn=g('f_txn');
-  const err=checkContact(name,phone)||(!okUid(uid)&&'সঠিক UID লিখুন')||(!pay&&'পেমেন্ট মেথড লাগবে')||(txn.length<6&&'Transaction ID লিখুন');
+  const name=g('f_name'),phone=g('f_phone'),uid=g('f_uid');
+  const pay=g('f_pay'),txn=g('f_txn');
+  const err=checkContact(name,phone)||(!okUid(uid)&&'সঠিক UID লিখুন')||
+  (!pay&&'পেমেন্ট মেথড লাগবে')||(txn.length<6&&'Transaction ID লিখুন');
   if(err)return toast(err);
-  const o=await send({service:svc,package_id:id,uid,name,phone,payment_method:pay,transaction_id:txn},e.target);
-  if(o)openSheet('<div class="center"><div style="font-size:44px">✅</div><h3>অর্ডার জমা হয়েছে</h3><p class="mu">Order ID: <b>'+esc(o.order_code)+'</b></p><a class="btn" href="#/orders" data-act="close">My Orders দেখুন</a></div>');
+
+  const payload={
+   service:svc,package_id:id,package_label:packageLabel,
+   category:cat,duration_days:duration,quantity,price:Number(p.price),
+   uid,name,phone,payment_method:pay,transaction_id:txn
+  };
+  const o=await send(payload,e.target);
+  if(o){
+   closeSheet();
+   toast('অর্ডার জমা হয়েছে');
+   location.hash='#/orders';
+  }
  };
 }
 
-function notice(k){const t=String((C.notices||{})[k]||'').trim();return t?'<div class="notice">'+esc(t)+'</div>':''}
-function svcHead(k){return '<a class="back" href="#/home">← হোম</a><div class="card head"><span class="ic sm">'+img(C.images[k],SVC[k].i)+'</span><h2>'+SVC[k].n+'</h2></div>'+notice(k)}
+/* TCP BOT: পাঁচ ধাপ, একই পেজে */
+function startTcp(id){
+ if(!needLogin())return;
+ const f=findPkg(id);
+ if(!f)return;
+ S.wiz={
+  step:1,id,p:f.p,
+  name:profile?.display_name||'',phone:'',
+  uid:'',friends:['','','',''],
+  payment:'',txn:''
+ };
+ renderTcpWizard();
+}
+function renderTcpWizard(){
+ const w=S.wiz;
+ if(!w)return;
+ const p=w.p;
+ const steps=['প্যাকেজ','UID','Friend UID','Payment','Confirm'];
+ let h='<a class="back" href="#/home">← হোম</a>'+
+ '<div class="card"><h2>TCP BOT Order</h2>'+
+ '<div class="steps">'+steps.map((x,i)=>'<i class="'+(w.step===i+1?'on':'')+'">'+(i+1)+'</i>').join('')+'</div>'+
+ '<p class="mu small">একই পেজে ৫টি ধাপে অর্ডার সম্পন্ন করুন।</p></div>';
+
+ if(w.step===1){
+  h+='<div class="card"><h3>Step 1 — Package</h3>'+
+  sumHtml([['Service','TCP BOT'],['Duration',pad(p.days)+' Days'],['Price',taka(p.price)]])+
+  '<button class="btn" data-act="tcpnext">পরবর্তী ধাপ</button></div>';
+ }
+ if(w.step===2){
+  h+='<div class="card"><h3>Step 2 — Customer Information</h3>'+
+  '<label>আপনার নাম</label><input id="tcp_name" value="'+esc(w.name)+'">'+
+  '<label>ফোন / WhatsApp নম্বর</label><input id="tcp_phone" inputmode="tel" value="'+esc(w.phone)+'">'+
+  '<label>Free Fire UID</label><input id="tcp_uid" inputmode="numeric" value="'+esc(w.uid)+'">'+
+  '<button class="btn" data-act="tcpnext">পরবর্তী ধাপ</button>'+
+  '<button class="btn alt" data-act="tcpback">পেছনে যান</button></div>';
+ }
+ if(w.step===3){
+  h+='<div class="card"><h3>Step 3 — Friend UID</h3>'+
+  '<p class="mu small">প্রয়োজন অনুযায়ী Friend UID দিন। খালি ঘর রাখা যাবে।</p>';
+  for(let i=0;i<4;i++){
+   h+='<label>Friend UID '+(i+1)+'</label><input id="tcp_friend_'+i+'" inputmode="numeric" value="'+esc(w.friends[i]||'')+'">';
+  }
+  h+='<button class="btn" data-act="tcpnext">পরবর্তী ধাপ</button>'+
+  '<button class="btn alt" data-act="tcpback">পেছনে যান</button></div>';
+ }
+ if(w.step===4){
+  const pm=Object.entries(C.payment||{}).filter(e=>String(e[1]||'').trim());
+  h+='<div class="card"><h3>Step 4 — Payment</h3>';
+  if(!pm.length)h+='<div class="warn">পেমেন্ট তথ্য এখনো যোগ করা হয়নি।</div>';
+  else{
+   h+='<div class="paybox">'+pm.map(e=>'<p><b>'+esc(PAYN[e[0]]||e[0])+'</b>: '+esc(e[1])+'</p>').join('')+'</div>'+
+   '<label>Payment Method</label><select id="tcp_payment">'+pm.map(e=>'<option value="'+esc(e[0])+'" '+(w.payment===e[0]?'selected':'')+'>'+esc(PAYN[e[0]]||e[0])+'</option>').join('')+'</select>'+
+   '<label>Transaction ID</label><input id="tcp_txn" value="'+esc(w.txn)+'" placeholder="Transaction ID">';
+  }
+  h+='<button class="btn" data-act="tcpnext">পরবর্তী ধাপ</button>'+
+  '<button class="btn alt" data-act="tcpback">পেছনে যান</button></div>';
+ }
+ if(w.step===5){
+  h+='<div class="card"><h3>Step 5 — Confirm Order</h3>'+
+  sumHtml([
+   ['Service','TCP BOT'],['Package',pad(p.days)+' Days'],
+   ['Price',taka(p.price)],['Name',w.name],['Phone',w.phone],
+   ['UID',w.uid],['Friend UID',w.friends.filter(Boolean).join(', ')||'-'],
+   ['Payment',PAYN[w.payment]||w.payment],['Transaction ID',w.txn]
+  ])+
+  '<button class="btn" data-act="tcpsubmit">অর্ডার জমা দিন</button>'+
+  '<button class="btn alt" data-act="tcpback">পেছনে যান</button></div>';
+ }
+ $('#app').innerHTML=h;
+}
+function tcpNext(){
+ const w=S.wiz;
+ if(!w)return;
+ if(w.step===2){
+  w.name=g('tcp_name');w.phone=g('tcp_phone');w.uid=g('tcp_uid');
+  const err=checkContact(w.name,w.phone)||(!okUid(w.uid)&&'সঠিক UID লিখুন');
+  if(err)return toast(err);
+ }
+ if(w.step===3){
+  w.friends=w.friends.map((v,i)=>g('tcp_friend_'+i));
+  if(w.friends.some(v=>v&&!okUid(v)))return toast('Friend UID সঠিকভাবে লিখুন');
+ }
+ if(w.step===4){
+  w.payment=g('tcp_payment');w.txn=g('tcp_txn');
+  if(!w.payment)return toast('Payment Method নির্বাচন করুন');
+  if(w.txn.length<6)return toast('সঠিক Transaction ID লিখুন');
+ }
+ if(w.step<5){w.step++;renderTcpWizard();}
+}
+function tcpBack(){
+ if(S.wiz&&S.wiz.step>1){S.wiz.step--;renderTcpWizard();}
+}
+async function tcpSubmit(btn){
+ const w=S.wiz;
+ if(!w)return;
+ const p=w.p;
+ const o=await send({
+  service:'tcp',package_id:w.id,
+  package_label:pad(p.days)+' Days',
+  duration_days:p.days,quantity:1,price:Number(p.price),
+  uid:w.uid,name:w.name,phone:w.phone,
+  friend_uids:w.friends.filter(Boolean),
+  payment_method:w.payment,transaction_id:w.txn
+ },btn);
+ if(o){
+  S.wiz=null;
+  toast('TCP BOT অর্ডার জমা হয়েছে');
+  location.hash='#/orders';
+ }
+}
 
 const pages={
  home(){
-  let h='<div class="banner">'+(C.images.welcomeBanner?img(C.images.welcomeBanner,''):'<div><h2>স্বাগতম</h2><p>'+esc(C.shopName)+'</p></div>')+'</div>';
-  h+='<h3 class="sec">Main Services</h3><div class="svc">'+Object.keys(SVC).map(k=>'<a href="#/'+k+'"><span class="ic">'+img(C.images[k],SVC[k].i)+'</span>'+SVC[k].n+'</a>').join('')+'</div>';
-  h+='<h3 class="sec">Free Services</h3><div class="tools">'+TOOLS.map(t=>'<a class="card" href="#/tool/'+t.k+'"><span class="ic">'+t.i+'</span>'+t.n+'</a>').join('')+'</div>';
-  if((C.faq||[]).length)h+='<h3 class="sec">FAQ</h3>'+C.faq.map(f=>'<div class="card"><details><summary>'+esc(f.q)+'</summary><p style="margin-top:8px">'+esc(f.a)+'</p></details></div>').join('');
-  const so=SOC.map(s=>[s[1],link(s[0],C.social[s[0]])]).filter(s=>s[1]);
-  h+='<div class="soc">'+so.map(s=>'<a href="'+esc(s[1])+'" target="_blank" rel="noopener">'+s[0]+'</a>').join('')+'</div><div class="foot">'+esc(C.footerText)+'</div>';
-  $('#app').innerHTML=h;
- },
- likes(){
-  let h=svcHead('likes');
-  for(const c in C.likes){const gr=C.likes[c];h+='<h3 class="sec">'+esc(gr.title)+'</h3><div class="grid">'+gr.packages.map(p=>'<button class="pkg" data-act="likes" data-id="'+p.id+'"><b>'+pad(p.days)+' Days</b><span>'+fmt(p.total)+' Likes</span><em>'+taka(p.price)+'</em></button>').join('')+'</div>'}
-  $('#app').innerHTML=h;
- },
- glory(){
-  $('#app').innerHTML=svcHead('glory')+'<h3 class="sec">প্যাকেজ</h3><div class="grid">'+C.glory.packages.map(p=>'<button class="pkg" data-act="glory" data-id="'+p.id+'"><b>'+p.bots+' BOT</b><em>'+taka(p.price)+'</em></button>').join('')+'</div>';
- },
- tcp(){
-  $('#app').innerHTML=svcHead('tcp')+'<h3 class="sec">প্যাকেজ</h3><div class="grid">'+C.tcp.packages.map(p=>'<button class="pkg" data-act="tcp" data-id="'+p.id+'"><b>'+pad(p.days)+' Days</b><em>'+taka(p.price)+'</em></button>').join('')+'</div><div id="wiz" style="margin-top:14px"></div>';
- },
- async orders(){
-  if(!session){$('#app').innerHTML='<div class="card center"><h3>লগইন প্রয়োজন</h3><p class="mu">আপনার অর্ডার দেখতে লগইন করুন।</p>'+loginBtns()+'</div>';sessionStorage.setItem('gx_back','#/orders');return}
-  $('#app').innerHTML='<p class="mu center">লোড হচ্ছে...</p>';
-  const r=await sb.from('orders').select('*').order('created_at',{ascending:false});
-  if(r.error){$('#app').innerHTML='<div class="warn">'+esc(r.error.message)+'</div>';return}
-  S.orders=r.data||[];drawOrders();
- },
- account(){
-  if(!session){sessionStorage.setItem('gx_back','#/account');$('#app').innerHTML='<div class="card center"><div class="av">👤</div><h3>Not Logged In</h3><p class="mu">লগইন করে অর্ডার ও প্রোফাইল দেখুন।</p>'+loginBtns()+'</div>';return}
-  const m=session.user.user_metadata||{};const nm=(profile&&profile.display_name)||m.full_name||m.name||'Customer';const av=(profile&&profile.avatar_url)||m.avatar_url||C.images.profile;
-  const ct=[['whatsapp','WhatsApp'],['telegram','Telegram']].map(s=>[s[1],link(s[0],C.social[s[0]])]).filter(s=>s[1]);
-  $('#app').innerHTML='<div class="card center"><div class="av">'+img(av,'👤')+'</div><h3>'+esc(nm)+'</h3><p class="mu">'+esc(session.user.email||'')+'</p><div class="pill" style="display:inline-block;margin-top:10px">Wallet: ৳ '+fmt(profile?profile.wallet_balance||0:0)+'</div></div>'
-  +'<div class="card"><h3>Account Settings</h3><button class="btn alt" data-act="rename">নাম পরিবর্তন করুন</button></div>'
-  +'<div class="card"><h3>Support Contact</h3>'+(C.supportContact?'<p>'+esc(C.supportContact)+'</p>':'')+ct.map(s=>'<a class="btn alt" href="'+esc(s[1])+'" target="_blank" rel="noopener">'+s[0]+'</a>').join('')+((!C.supportContact&&!ct.length)?'<p class="mu">যোগাযোগের তথ্য এখনো যোগ করা হয়নি।</p>':'')+'</div>'
-  +'<button class="btn" data-act="logout" style="background:#e5484d">Logout</button>';
- },
- tool(k){
-  const T=TOOLS.find(t=>t.k===k);if(!T){location.hash='#/home';return}
-  let h='<a class="back" href="#/home">← হোম</a><div class="card head"><span class="ic sm">'+T.i+'</span><h2>'+T.n+'</h2></div>';
-  if(k==='root'){
-   const ct=[['whatsapp','WhatsApp'],['telegram','Telegram']].map(s=>[s[1],link(s[0],C.social[s[0]])]).filter(s=>s[1]);
-   h+='<div class="card"><p>এটি যোগাযোগ-ভিত্তিক সেবা। আপনার ডিভাইসের তথ্য জানিয়ে সাপোর্টের সাথে যোগাযোগ করুন।</p>'+(C.supportContact?'<p style="margin-top:8px"><b>'+esc(C.supportContact)+'</b></p>':'')+ct.map(s=>'<a class="btn" href="'+esc(s[1])+'" target="_blank" rel="noopener">'+s[0]+'-এ যোগাযোগ</a>').join('')+((!C.supportContact&&!ct.length)?'<p class="mu" style="margin-top:8px">যোগাযোগের তথ্য এখনো যোগ করা হয়নি।</p>':'')+'</div>';
-  }else h+='<div class="card"><label>'+(k==='guild'?'Guild ID':'Player UID')+'</label><input id="t_in" inputmode="numeric"><button class="btn" data-act="tool" data-k="'+k+'">খুঁজুন</button></div><div id="t_out"></div>';
-  $('#app').innerHTML=h;
- }
-};
-
-function drawOrders(){
- const f=S.of,L=(S.orders||[]).filter(o=>f==='all'||o.status===f);
- let h='<div class="filters">'+[['all','All Orders'],['pending','Pending'],['completed','Completed']].map(x=>'<button data-act="of" data-f="'+x[0]+'" class="'+(f===x[0]?'on':'')+'">'+x[1]+'</button>').join('')+'</div>';
- if(!L.length)h+='<div class="card center mu">কোনো অর্ডার নেই</div>';
- h+=L.map(o=>{const d=o.customer_data||{};return '<div class="card"><div class="row"><b>'+esc(o.order_code||o.id)+'</b><span class="st '+esc(o.status)+'">'+esc(STB[o.status]||o.status)+'</span></div>'
-  +sumHtml([['Service',(SVC[o.service]||{}).n||o.service],['Package',o.package_label||'-'],['Duration',o.duration_days?pad(o.duration_days)+' Days':'-'],[o.service==='likes'?'Total Likes':'Quantity',o.quantity!=null?fmt(o.quantity):'-'],['Price',taka(o.price||0)],['Date',new Date(o.created_at).toLocaleString('en-GB')]])
-  +'<details><summary>Order Details / Receipt</summary>'+sumHtml(Object.entries(d).map(e=>[e[0],Array.isArray(e[1])?e[1].join(', '):e[1]]).concat([['Payment',(PAYN[o.payment_method]||o.payment_method||'-')],['Transaction ID',o.transaction_id||'
+  let h='<div class="banner">'+
+  (C.images?.welcomeBanner?img(C.images.welcomeBanner,''):'<div><h2>স্বাগতম</h2><p>'+esc(C.shopName||'GENOX SHOP')+'</p></div>')+
+  '</div>';
+  h+='<h3 class="sec">Main Services</h3><div class="svc">'+
+  Object.keys(SVC).map(k=>'<a href="#/'+k+'"><span class="ic">'+img(C.images?.[k],SVC[k].i)+'</span>'+SVC[k].n+'</a>').join('')+
+  '</div>';
+  h+='<h3 class="sec">Free Services</h3><div class="tools">'+
+  TOOLS.map(t=>'<a class="card" href="#/tool/'+t.k+'"><span class="ic">'+t.i+'</span>'+t.n+'</a>').join('')+
+  '</div>';
+  if((C.faq||[]).length){
+   h+='<h3 class="sec">FAQ</h3>'+
+   C.faq.map(f=>'<div class="card"><details><summary>'+esc(f.q)+'</summary><p style="margin-top:8px">'+esc(f.a)+'</p></details></div>').join('');
+  }
+  const so=SOC.map(s=>[s[1],link(s[0],C.social?.[s[0]])]).filter(s=
