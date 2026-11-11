@@ -86,11 +86,11 @@ pre{white-space:pre-wrap;word-break:break-word;background:#f5f7fb;border-radius:
 <a href="#/account" data-k="account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>My Account</a>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="/config.js"></script>
+<script src="config.js"></script>
 <script>
 const C=window.GENOX_CONFIG;
 const $=s=>document.querySelector(s);
-const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;T'[m]}));
 const taka=n=>'৳'+Number(n).toLocaleString('en-US');
 const fmt=n=>Number(n).toLocaleString('en-US');
 const pad=n=>String(n).padStart(2,'0');
@@ -209,98 +209,4 @@ function drawOrders(){
  if(!L.length)h+='<div class="card center mu">কোনো অর্ডার নেই</div>';
  h+=L.map(o=>{const d=o.customer_data||{};return '<div class="card"><div class="row"><b>'+esc(o.order_code||o.id)+'</b><span class="st '+esc(o.status)+'">'+esc(STB[o.status]||o.status)+'</span></div>'
   +sumHtml([['Service',(SVC[o.service]||{}).n||o.service],['Package',o.package_label||'-'],['Duration',o.duration_days?pad(o.duration_days)+' Days':'-'],[o.service==='likes'?'Total Likes':'Quantity',o.quantity!=null?fmt(o.quantity):'-'],['Price',taka(o.price||0)],['Date',new Date(o.created_at).toLocaleString('en-GB')]])
-  +'<details><summary>Order Details / Receipt</summary>'+sumHtml(Object.entries(d).map(e=>[e[0],Array.isArray(e[1])?e[1].join(', '):e[1]]).concat([['Payment',(PAYN[o.payment_method]||o.payment_method||'-')],['Transaction ID',o.transaction_id||'-']]))+'</details></div>'}).join('');
- $('#app').innerHTML=h;
-}
-
-function startTcp(id){
- if(!needLogin())return;
- const f=findPkg(id);S.wiz={step:1,pkg:f.p,name:(profile&&profile.display_name)||'',phone:'',uid:'',friends:[],pay:'',txn:''};
- renderWiz();$('#wiz').scrollIntoView({behavior:'smooth'});
-}
-function saveStep(){const w=S.wiz;
- if(w.step===2){w.name=g('w_name');w.phone=g('w_phone');w.uid=g('w_uid');w.friends=[];for(let i=0;i<C.tcp.friendUidSlots;i++)w.friends.push(g('w_f'+i))}
- if(w.step===3){w.pay=g('f_pay');w.txn=g('f_txn')}
-}
-function renderWiz(){
- const w=S.wiz,el=$('#wiz');if(!w||!el)return;const p=w.pkg;
- let h='<div class="card"><div class="steps">'+[1,2,3,4,5].map(i=>'<i class="'+(i<=w.step?'on':'')+'">'+i+'</i>').join('')+'</div><div class="pk">TCP Bot · '+pad(p.days)+' Days · <b>'+taka(p.price)+'</b></div>';
- const pk=[['Package','TCP Bot'],['Duration',pad(p.days)+' Days'],['Price',taka(p.price)]];
- if(w.step===1)h+='<h3>ধাপ ১: প্যাকেজ নিশ্চিত করুন</h3>'+sumHtml(pk)+'<button class="btn" data-act="wnext">পরের ধাপ</button>';
- if(w.step===2){h+='<h3>ধাপ ২: তথ্য দিন</h3>'+contactFields(w.name,w.phone).replace('id="f_name"','id="w_name"').replace('id="f_phone"','id="w_phone"')+'<label>TCP UID</label><input id="w_uid" inputmode="numeric" value="'+esc(w.uid)+'">';
-  for(let i=0;i<C.tcp.friendUidSlots;i++)h+='<label>Friend UID '+(i+1)+' (ঐচ্ছিক)</label><input id="w_f'+i+'" inputmode="numeric" value="'+esc(w.friends[i]||'')+'">';
-  h+='<button class="btn" data-act="wnext">পরের ধাপ</button>'}
- if(w.step===3)h+='<h3>ধাপ ৩: পেমেন্ট</h3>'+payFields()+'<button class="btn" data-act="wnext">পরের ধাপ</button>';
- const rows=pk.concat([['Name',w.name],['Phone',w.phone],['TCP UID',w.uid],['Friend UID',(w.friends||[]).filter(Boolean).join(', ')||'-'],['Payment',PAYN[w.pay]||w.pay],['Transaction ID',w.txn]]);
- if(w.step===4)h+='<h3>ধাপ ৪: সামারি যাচাই</h3>'+sumHtml(rows)+'<button class="btn" data-act="wsubmit">অর্ডার জমা দিন</button>';
- if(w.step===5){const o=w.order;h+='<div class="center"><h3>'+esc(C.tcpReceiptHeading)+'</h3></div>'+sumHtml([['Order ID',o.order_code],['Date',new Date(o.created_at).toLocaleString('en-GB')]].concat(rows))+'<p class="mu center">অর্ডারটি জমা হয়েছে। My Orders-এ দেখা যাবে।</p>'}
- if(w.step>1&&w.step<5)h+='<button class="btn alt" data-act="wback">পিছনে</button>';
- el.innerHTML=h+'</div>';
-}
-function wnext(){
- const w=S.wiz;saveStep();let err='';
- if(w.step===2)err=checkContact(w.name,w.phone)||(!okUid(w.uid)&&'সঠিক TCP UID লিখুন')||(w.friends.some(f=>f&&!okUid(f))&&'Friend UID ভুল আছে');
- if(w.step===3)err=(!w.pay&&'পেমেন্ট মেথড বেছে নিন')||(w.txn.length<6&&'Transaction ID লিখুন');
- if(err)return toast(err);
- w.step++;renderWiz();
-}
-async function wsubmit(btn){
- const w=S.wiz;
- const o=await send({service:'tcp',package_id:w.pkg.id,uid:w.uid,friend_uids:w.friends.filter(Boolean),name:w.name,phone:w.phone,payment_method:w.pay,transaction_id:w.txn},btn);
- if(o){w.order=o;w.step=5;renderWiz()}
-}
-
-function flat(o,pre){pre=pre||'';let r=[];for(const k in o){const v=o[k];if(v&&typeof v==='object'&&!Array.isArray(v)&&pre.split('.').length<3)r=r.concat(flat(v,pre+k+'.'));else r.push([pre+k,v==null?'-':Array.isArray(v)?v.map(x=>typeof x==='object'?JSON.stringify(x):x).join(', '):v])}return r}
-function findBio(o){if(!o||typeof o!=='object')return '';for(const k in o){const v=o[k];if(/bio|signature/i.test(k)&&typeof v==='string'&&v.trim())return v;if(v&&typeof v==='object'){const x=findBio(v);if(x)return x}}return ''}
-async function runTool(k){
- const v=g('t_in'),out=$('#t_out');
- if(!/^\d{4,14}$/.test(v))return toast('সঠিক নম্বর লিখুন');
- out.innerHTML='<p class="mu center">লোড হচ্ছে...</p>';
- try{
-  const d=await callApi((k==='guild'?'/api/guild?id=':'/api/player?uid=')+encodeURIComponent(v));
-  if(k==='bio'){const b=findBio(d);out.innerHTML=b?'<div class="card"><pre id="bio">'+esc(b)+'</pre><button class="btn" data-act="copy">Copy করুন</button></div>':'<div class="warn">এই প্লেয়ারের কোনো Bio পাওয়া যায়নি।</div>'}
-  else out.innerHTML='<div class="card">'+sumHtml(flat(d))+'</div>';
- }catch(e){out.innerHTML='<div class="warn">'+esc(e.message)+'</div>'}
-}
-async function copyBio(){const t=($('#bio')||{}).textContent||'';try{await navigator.clipboard.writeText(t);toast('কপি হয়েছে')}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('কপি হয়েছে')}catch(x){toast('কপি করা যায়নি')}a.remove()}}
-
-document.addEventListener('click',async e=>{
- const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act;
- if(a==='close')closeSheet();
- else if(a==='likes'||a==='glory')openOrder(a,t.dataset.id);
- else if(a==='tcp')startTcp(t.dataset.id);
- else if(a==='wnext')wnext();
- else if(a==='wback'){saveStep();S.wiz.step--;renderWiz()}
- else if(a==='wsubmit')wsubmit(t);
- else if(a==='login')login(t.dataset.p);
- else if(a==='logout'){await sb.auth.signOut();session=null;profile=null;header();location.hash='#/home';route()}
- else if(a==='of'){S.of=t.dataset.f;drawOrders()}
- else if(a==='tool')runTool(t.dataset.k);
- else if(a==='copy')copyBio();
- else if(a==='rename'){const n=prompt('নতুন নাম লিখুন');if(n&&n.trim().length>1){const r=await sb.from('profiles').update({display_name:n.trim()}).eq('id',session.user.id);if(r.error)toast(r.error.message);else{await loadProfile();route();toast('নাম বদলেছে')}}}
-});
-
-function nav(p){const m={orders:'orders',account:'account'}[p]||'home';document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('on',a.dataset.k===m))}
-function route(){
- const h=(location.hash||'#/home').slice(2).split('/'),p=h[0]||'home';
- S.wiz=null;closeSheet();header();
- (pages[p]||pages.home)(h[1]);nav(p);window.scrollTo(0,0);
-}
-window.addEventListener('hashchange',route);
-
-(async function init(){
- try{
-  if(C.supabase.url&&C.supabase.publishableKey&&window.supabase){
-   sb=supabase.createClient(C.supabase.url,C.supabase.publishableKey,{auth:{flowType:'pkce'}});
-   const r=await sb.auth.getSession();session=r.data.session;
-   sb.auth.onAuthStateChange((ev,s)=>{session=s;setTimeout(async()=>{await loadProfile();route()},0)});
-   await loadProfile();
-  }
- }catch(e){console.error(e)}
- const back=sessionStorage.getItem('gx_back');
- if(session&&back){sessionStorage.removeItem('gx_back');if(location.hash!==back){location.hash=back;return}}
- route();
-})();
-</script>
-</body>
-</html>
+  +'<details><summary>Order Details / Receipt</summary>'+sumHtml(Object.entries(d).map(e=>[e[0],Array.isArray(e[1])?e[1].join(', '):e[1]]).concat([['Payment',(PAYN[o.payment_method]||o.payment_method||'-')],['Transaction ID',o.transaction_id||'
