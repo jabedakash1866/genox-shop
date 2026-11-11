@@ -4,11 +4,30 @@ window.GENOX_CONFIG = {
   footerText: "© GENOX SHOP",
   supportContact: "",
 
-  images: { logo: "", welcomeBanner: "", likes: "", tcp: "", glory: "", offerBanner: "", profile: "" },
+  images: {
+    logo: "",
+    welcomeBanner: "",
+    likes: "",
+    tcp: "",
+    glory: "",
+    offerBanner: "",
+    profile: ""
+  },
 
-  social: { whatsapp: "", telegram: "", youtube: "", facebook: "", tiktok: "", instagram: "" },
+  social: {
+    whatsapp: "",
+    telegram: "",
+    youtube: "",
+    facebook: "",
+    tiktok: "",
+    instagram: ""
+  },
 
-  payment: { nagad: "01972982173", bkash: "", rocket: "" },
+  payment: {
+    nagad: "01972982173",
+    bkash: "",
+    rocket: ""
+  },
 
   notices: {
     likes: "",
@@ -19,32 +38,46 @@ window.GENOX_CONFIG = {
       "♦️ VIP+ 4 BOT: ৬০K-৭০০K+ Glory।\n\n" +
       "💯 VIP+ এ ৬০K এর কম হলে আবার বট দেওয়া হবে।\n\n" +
       "⚠️ Glory কম-বেশি সম্পূর্ণ Server-এর ওপর নির্ভরশীল।\n\n" +
-      "⚠️ BOT ব্যবহারে Guild-এর কোনো সমস্যা হলে কর্তৃপক্ষ দায়ী থাকবে না."
+      "⚠️ BOT ব্যবহারে Guild-এর কোনো সমস্যা হলে কর্তৃপক্ষ দায়ী থাকবে।"
   },
 
-  tcpReceiptHeading: "FuHx SHOP - TCP BOT RECEIPT",
+  tcpReceiptHeading: "GENOX SHOP - TCP BOT RECEIPT",
 
   faq: [],
 
   likes: {
-    "200": { title: "200 Likes", packages: [
-      { id: "l200_7", days: 7, total: 1400, price: 55 },
-      { id: "l200_15", days: 15, total: 3000, price: 90 },
-      { id: "l200_30", days: 30, total: 6000, price: 150 },
-      { id: "l200_60", days: 60, total: 12000, price: 300 },
-      { id: "l200_90", days: 90, total: 18000, price: 450 } ] },
-    "400": { title: "400 Likes", packages: [
-      { id: "l400_7", days: 7, total: 2800, price: 150 },
-      { id: "l400_15", days: 15, total: 6000, price: 240 },
-      { id: "l400_30", days: 30, total: 12000, price: 400 },
-      { id: "l400_60", days: 60, total: 24000, price: 800 },
-      { id: "l400_90", days: 90, total: 36000, price: 1200 } ] },
-    "1000": { title: "1000 Likes", packages: [
-      { id: "l1000_7", days: 7, total: 7000, price: 300 },
-      { id: "l1000_15", days: 15, total: 15000, price: 550 },
-      { id: "l1000_30", days: 30, total: 30000, price: 1000 },
-      { id: "l1000_60", days: 60, total: 60000, price: 2000 },
-      { id: "l1000_90", days: 90, total: 90000, price: 3000 } ] }
+    "200": {
+      title: "200 Likes",
+      packages: [
+        { id: "l200_7", days: 7, total: 1400, price: 55 },
+        { id: "l200_15", days: 15, total: 3000, price: 90 },
+        { id: "l200_30", days: 30, total: 6000, price: 150 },
+        { id: "l200_60", days: 60, total: 12000, price: 300 },
+        { id: "l200_90", days: 90, total: 18000, price: 450 }
+      ]
+    },
+
+    "400": {
+      title: "400 Likes",
+      packages: [
+        { id: "l400_7", days: 7, total: 2800, price: 150 },
+        { id: "l400_15", days: 15, total: 6000, price: 240 },
+        { id: "l400_30", days: 30, total: 12000, price: 400 },
+        { id: "l400_60", days: 60, total: 24000, price: 800 },
+        { id: "l400_90", days: 90, total: 36000, price: 1200 }
+      ]
+    },
+
+    "1000": {
+      title: "1000 Likes",
+      packages: [
+        { id: "l1000_7", days: 7, total: 7000, price: 300 },
+        { id: "l1000_15", days: 15, total: 15000, price: 550 },
+        { id: "l1000_30", days: 30, total: 30000, price: 1000 },
+        { id: "l1000_60", days: 60, total: 60000, price: 2000 },
+        { id: "l1000_90", days: 90, total: 90000, price: 3000 }
+      ]
+    }
   },
 
   tcp: {
@@ -66,8 +99,8 @@ window.GENOX_CONFIG = {
     ]
   },
 
-  supabase: { 
-    url: "https://pdknjerslldlrhyyqjev.supabase.co", 
-    publishableKey: "Sb_publishable_Wb6WKB3xDr-BqxeC6v08iw_-XA1TXxn" 
+  supabase: {
+    url: "https://pdknjerslldlrhyyqjev.supabase.co",
+    publishableKey: "Sb_publishable_Wb6WKB3xDr-BqxeC6v08iw_-XA1TXxn"
   }
 };
