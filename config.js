@@ -19,7 +19,7 @@ window.GENOX_CONFIG = {
       "♦️ VIP+ 4 BOT: ৬০K-৭০০K+ Glory।\n\n" +
       "💯 VIP+ এ ৬০K এর কম হলে আবার বট দেওয়া হবে।\n\n" +
       "⚠️ Glory কম-বেশি সম্পূর্ণ Server-এর ওপর নির্ভরশীল।\n\n" +
-      "⚠️ BOT ব্যবহারে Guild-এর কোনো সমস্যা হলে কর্তৃপক্ষ দায়ী থাকবে না।"
+      "⚠️ BOT ব্যবহারে Guild-এর কোনো সমস্যা হলে কর্তৃপক্ষ দায়ী থাকবে না."
   },
 
   tcpReceiptHeading: "FuHx SHOP - TCP BOT RECEIPT",
@@ -66,5 +66,8 @@ window.GENOX_CONFIG = {
     ]
   },
 
-  supabase: { url: "", publishableKey: "" }
+  supabase: { 
+    url: "https://pdknjerslldlrhyyqjev.supabase.co", 
+    publishableKey: "Sb_publishable_Wb6WKB3xDr-BqxeC6v08iw_-XA1TXxn" 
+  }
 };
