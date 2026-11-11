@@ -1,885 +1,306 @@
-
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#080d1b">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>GENOX SHOP</title>
-
 <style>
-:root {
-  --bg:#080d1b;
-  --card:#111b30;
-  --card2:#172541;
-  --blue:#3988ff;
-  --purple:#8757ff;
-  --text:#f4f7ff;
-  --muted:#a8b5cc;
-  --green:#21d69b;
-  --border:#293957;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Arial,sans-serif;
-}
+:root{--bg:#f5f7fb;--card:#fff;--p:#1f6feb;--pl:#e7f0ff;--tx:#18212f;--mu:#667085;--bd:#e4e9f2;--ok:#16a34a}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:system-ui,-apple-system,"Noto Sans Bengali",Roboto,sans-serif;background:var(--bg);color:var(--tx);font-size:15px;line-height:1.45;padding:calc(62px + env(safe-area-inset-top)) 0 calc(80px + env(safe-area-inset-bottom))}
 button,input,select{font:inherit}
-button{cursor:pointer}
-a{color:inherit}
-.container{width:min(100% - 28px,1050px);margin:auto}
-header{
-  padding:17px 0;border-bottom:1px solid var(--border);
-  background:#0b1324;
-}
-.nav{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.logo{font-size:23px;font-weight:900;letter-spacing:1px}
-.logo span{color:#68a4ff}
-.nav button,.back{
-  border:1px solid var(--border);background:var(--card);
-  color:white;padding:10px 14px;border-radius:10px;
-}
-.hero{
-  text-align:center;padding:55px 12px 40px;
-  background:radial-gradient(ellipse at top,#19376b 0%,#0b1427 48%,var(--bg) 78%);
-}
-.hero h1{font-size:clamp(30px,7vw,48px);margin:0 0 12px}
-.hero h1 span{color:#69a5ff}
-.hero p{color:var(--muted);line-height:1.7}
-.primary{
-  border:0;border-radius:12px;padding:13px 22px;
-  color:white;font-weight:bold;
-  background:linear-gradient(110deg,var(--blue),var(--purple));
-}
-.section{padding:30px 0}
-.section-title{text-align:center;margin-bottom:22px}
-.section-title h2{margin-bottom:8px}
-.section-title p{color:var(--muted);font-size:14px}
-.service-grid,.package-grid,.tool-grid,.social-grid{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;
-}
-.service-card,.package-card,.panel,.tool-card{
-  background:linear-gradient(145deg,var(--card2),var(--card));
-  border:1px solid var(--border);border-radius:16px;padding:17px;
-}
-.service-card h3{margin:5px 0 8px}
-.service-card p,.tool-card p{color:var(--muted);font-size:13px;line-height:1.6}
-.service-card button{width:100%;margin-top:10px}
-.service-icon{font-size:27px}
-.page{display:none;padding:22px 0 35px}
-.page.active{display:block}
-.page-heading{margin:20px 0}
-.page-heading h2{margin-bottom:7px}
-.page-heading p{color:var(--muted);font-size:14px}
-.package-card{
-  text-align:left;position:relative;min-height:112px;
-  color:var(--text);width:100%;
-}
-.package-card strong{display:block;font-size:16px;margin-bottom:8px}
-.package-card small{display:block;color:var(--muted);margin-bottom:8px}
-.package-card .price{font-size:21px;font-weight:900;color:var(--green)}
-.package-card.selected{
-  border:2px solid var(--blue);
-  background:linear-gradient(145deg,#193c70,#20234a);
-}
-.package-card.selected:after{
-  content:"✓";position:absolute;right:12px;top:10px;
-  color:var(--green);font-weight:bold;
-}
-.field{margin:14px 0}
-.field label{display:block;font-size:14px;margin-bottom:8px}
-.field input,.field select{
-  width:100%;padding:14px;border-radius:10px;
-  border:1px solid var(--border);background:#091326;color:white;
-  outline:none;
-}
-.field input:focus,.field select:focus{border-color:var(--blue)}
-.panel{margin-top:18px}
-.summary-row{
-  display:flex;justify-content:space-between;gap:10px;
-  padding:9px 0;border-bottom:1px solid var(--border);font-size:14px;
-}
-.summary-row:last-child{border:0}
-.summary-row span{color:var(--muted)}
-.total{font-size:22px;color:var(--green);font-weight:bold}
-.notice{
-  margin-top:22px;padding:16px;border-radius:13px;
-  background:#251d12;border:1px solid #795622;
-  color:#ffdda0;font-size:13px;line-height:1.8;
-  white-space:pre-line;
-}
-.step{display:none}
-.step.active{display:block}
-.step-count{color:#8bbaff;font-size:13px;margin:8px 0}
-.actions{display:flex;gap:10px;margin-top:17px}
-.actions button{flex:1}
-.secondary{
-  border:1px solid var(--border);background:var(--card);
-  color:white;border-radius:11px;padding:13px;
-}
-.social{
-  margin-top:28px;padding:20px 0 12px;
-  border-top:1px solid var(--border);
-}
-.social h3{text-align:center;font-size:16px}
-.social-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-.social-link{
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  text-decoration:none;color:white;padding:15px 8px;
-  border-radius:12px;background:var(--card);
-  border:1px solid var(--border);font-weight:bold;
-}
-.social-link.whatsapp{background:#123d31;border-color:#167b58}
-.social-link.instagram{background:#402044;border-color:#9b459e}
-.social-link.facebook{background:#122c51;border-color:#2869b8}
-.social-link.tiktok{background:#17232c;border-color:#526d7c}
-.social-link.youtube{background:#481c24;border-color:#a63845}
-.social-link .symbol{font-size:22px}
-footer{text-align:center;padding:24px;color:var(--muted);font-size:12px}
-.hidden{display:none!important}
-.message{margin-top:12px;font-size:13px;line-height:1.6;white-space:pre-wrap}
-.success{color:var(--green)}
-.error{color:#ff7777}
-.faq-item{padding:15px;border-bottom:1px solid var(--border)}
-.faq-item p{color:var(--muted);font-size:14px;line-height:1.6}
-.contact-card{display:block;text-decoration:none;margin-top:12px}
-@media(min-width:650px){
-  .service-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .package-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .social-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
-}
+a{color:inherit;text-decoration:none}
+.top{position:fixed;top:0;left:0;right:0;z-index:20;background:#fff;border-bottom:1px solid var(--bd);padding:env(safe-area-inset-top) 14px 0;height:calc(56px + env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--p);color:#fff;display:grid;place-items:center;font-weight:800;overflow:hidden}
+.logo img{width:100%;height:100%;object-fit:cover}
+.pill{background:var(--pl);color:var(--p);border:1px solid #cfe0ff;border-radius:999px;padding:6px 12px;font-weight:700;font-size:14px}
+.wrap{max-width:560px;margin:0 auto;padding:14px}
+.sec{font-size:16px;margin:20px 0 10px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;box-shadow:0 2px 10px rgba(20,40,80,.06);margin-bottom:12px}
+.banner{border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#1f6feb,#5b9bff);color:#fff;min-height:150px;display:grid;place-items:center;text-align:center;padding:18px}
+.banner img{width:100%;display:block}
+.banner h2{font-size:24px}
+.svc{display:flex;flex-wrap:wrap;justify-content:center;gap:18px 10px}
+.svc a{width:46%;text-align:center;font-weight:700;font-size:14px}
+.ic{width:72px;height:72px;border-radius:50%;background:var(--pl);border:1px solid #cfe0ff;display:grid;place-items:center;font-size:30px;margin:0 auto 6px;overflow:hidden}
+.ic.sm{width:44px;height:44px;font-size:22px;margin:0 0 6px;flex:none}
+.ic img{width:100%;height:100%;object-fit:cover}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tools .card{margin:0;text-align:center;font-weight:700;font-size:14px}
+.tools .ic{width:48px;height:48px;font-size:24px}
+.head{display:flex;gap:12px;align-items:center}
+.head .ic{margin:0}
+.back{display:inline-block;color:var(--p);font-weight:700;margin-bottom:10px}
+.notice{background:#fff8e6;border:1px solid #f5dfa0;border-radius:14px;padding:12px;white-space:pre-wrap;margin-bottom:12px;font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pkg{background:#fff;border:1px solid var(--bd);border-radius:14px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:2px;cursor:pointer;box-shadow:0 2px 8px rgba(20,40,80,.05)}
+.pkg b{font-size:16px}.pkg span{color:var(--mu);font-size:13px}.pkg em{font-style:normal;color:var(--p);font-weight:800;font-size:17px;margin-top:4px}
+.btn{display:block;width:100%;background:var(--p);color:#fff;border:0;border-radius:12px;padding:13px;font-weight:700;margin-top:12px;cursor:pointer}
+.btn.alt{background:#fff;color:var(--p);border:1px solid var(--p)}
+.btn:disabled{opacity:.6}
+label{display:block;font-weight:600;font-size:13px;margin:12px 0 4px;color:var(--mu)}
+input,select{width:100%;border:1px solid var(--bd);border-radius:12px;padding:12px;background:#fff;color:var(--tx)}
+.mu{color:var(--mu)}
+.warn{background:#fdecec;border:1px solid #f5c2c2;color:#a12626;border-radius:12px;padding:10px;margin-top:10px;font-size:14px}
+.paybox{background:var(--pl);border-radius:12px;padding:10px;margin-top:12px;font-size:14px}
+.sum{border:1px solid var(--bd);border-radius:12px;margin:10px 0}
+.sum div{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid var(--bd);font-size:14px}
+.sum div:last-child{border:0}.sum b{text-align:right;word-break:break-all}
+.steps{display:flex;gap:8px;margin-bottom:10px}
+.steps i{flex:1;text-align:center;font-style:normal;font-size:12px;padding:5px 0;border-radius:8px;background:#eef1f6;color:var(--mu);font-weight:700}
+.steps i.on{background:var(--p);color:#fff}
+.pk{margin-bottom:6px}
+.filters{display:flex;gap:8px;margin-bottom:12px}
+.filters button{flex:1;padding:9px 4px;border:1px solid var(--bd);background:#fff;border-radius:999px;font-size:13px;font-weight:700;color:var(--mu)}
+.filters button.on{background:var(--p);color:#fff;border-color:var(--p)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.st{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:#eef1f6}
+.st.pending{background:#fff3d6;color:#9a6700}.st.completed{background:#dcfce7;color:#166534}.st.cancelled,.st.rejected{background:#fde2e2;color:#991b1b}
+details{margin-top:8px}summary{color:var(--p);font-weight:700;cursor:pointer}
+.soc{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:24px}
+.soc a{background:#fff;border:1px solid var(--bd);border-radius:999px;padding:8px 14px;font-weight:700;font-size:13px}
+.foot{text-align:center;color:var(--mu);font-size:12px;margin-top:12px}
+.av{width:84px;height:84px;border-radius:50%;background:var(--pl);display:grid;place-items:center;font-size:36px;margin:0 auto 10px;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.center{text-align:center}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:20;background:#fff;border-top:1px solid var(--bd);display:flex;padding:6px 0 calc(6px + env(safe-area-inset-bottom))}
+.nav a{flex:1;text-align:center;color:var(--mu);font-size:12px;font-weight:700;padding:4px 0}
+.nav a.on{color:var(--p)}
+.nav svg{display:block;margin:0 auto 2px;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#sheet{display:none;position:fixed;inset:0;z-index:50}
+#sheet .bd{position:absolute;inset:0;background:rgba(10,20,40,.45)}
+#sheet .box{position:absolute;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;background:#fff;border-radius:20px 20px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom));max-width:560px;margin:0 auto}
+#sheet .x{position:absolute;right:12px;top:10px;border:0;background:#eef1f6;border-radius:50%;width:32px;height:32px}
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#18212f;color:#fff;padding:10px 16px;border-radius:12px;z-index:60;display:none;max-width:90%;font-size:14px}
+pre{white-space:pre-wrap;word-break:break-word;background:#f5f7fb;border-radius:12px;padding:12px;font-family:inherit}
 </style>
 </head>
-
 <body>
-<header>
-  <div class="container nav">
-    <div class="logo" id="siteLogo">GENOX <span>SHOP</span></div>
-    <button onclick="showPage('home')">Home</button>
-  </div>
-</header>
-
-<main class="container">
-
-<section id="home" class="page active">
-  <div class="hero">
-    <h1 id="welcomeTitle">WELCOME TO <span>GENOX SHOP</span></h1>
-    <p id="welcomeText">Your Gaming Services Destination.</p>
-    <button class="primary" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">Explore Services</button>
-  </div>
-
-  <section id="services" class="section">
-    <div class="section-title">
-      <h2>OUR SERVICES</h2>
-      <p>Choose your required service</p>
-    </div>
-    <div class="service-grid">
-      <div class="service-card">
-        <div class="service-icon">❤️</div>
-        <h3>Free Fire Likes</h3>
-        <p>Choose your Likes package and duration.</p>
-        <button class="primary" onclick="openService('likes')">View Details</button>
-      </div>
-      <div class="service-card">
-        <div class="service-icon">🤖</div>
-        <h3>TCP Bot</h3>
-        <p>Select a package and submit your details.</p>
-        <button class="primary" onclick="openService('tcp')">View Details</button>
-      </div>
-      <div class="service-card">
-        <div class="service-icon">🏆</div>
-        <h3>Guild Glory Bot</h3>
-        <p>Select your Glory Bot package.</p>
-        <button class="primary" onclick="openService('glory')">View Details</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-title">
-      <h2>FREE TOOLS</h2>
-      <p>Useful tools for Free Fire players</p>
-    </div>
-    <div class="tool-grid">
-      <div class="tool-card">
-        <h3>Guild Info Checker</h3>
-        <p>Check guild information using a Guild UID.</p>
-        <button class="secondary" onclick="showPage('tools')">Open Tools</button>
-      </div>
-      <div class="tool-card">
-        <h3>Player Bio Copy</h3>
-        <p>Find player information and copy the bio.</p>
-        <button class="secondary" onclick="showPage('tools')">Open Tools</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-title"><h2>FAQ</h2></div>
-    <div class="panel" id="faqList"></div>
-  </section>
-  <div class="social" id="homeSocial"></div>
-</section>
-
-<section id="likes" class="page">
-  <button class="back" onclick="showPage('home')">← Back</button>
-  <div class="page-heading">
-    <h2>❤️ FREE FIRE LIKES</h2>
-    <p>Select one package.</p>
-  </div>
-  <div id="likesPackages" class="package-grid"></div>
-
-  <div id="likesForm" class="panel hidden">
-    <h3>Player Information</h3>
-    <div class="field">
-      <label>Free Fire UID</label>
-      <input id="likesUid" inputmode="numeric" placeholder="Enter your Player UID">
-    </div>
-    <button class="secondary" onclick="checkPlayer()">Verify UID</button>
-    <div id="playerResult" class="message"></div>
-    <div id="likesPayment" class="hidden">
-      <div class="panel">
-        <h3>Order Summary</h3>
-        <div id="likesSummary"></div>
-      </div>
-      <div class="payment-fields"></div>
-      <button class="primary" onclick="submitLikes()">Confirm Order</button>
-      <div id="likesMessage" class="message"></div>
-    </div>
-  </div>
-  <div class="notice" id="likesNotice"></div>
-  <div class="social"></div>
-</section>
-
-<section id="tcp" class="page">
-  <button class="back" onclick="showPage('home')">← Back</button>
-  <div class="page-heading">
-    <h2>🤖 TCP BOT</h2>
-    <p>Complete your order in five steps.</p>
-  </div>
-
-  <div class="panel">
-    <div class="step-count" id="tcpCount">Step 1 of 5</div>
-    <div class="step active" id="tcpStep1">
-      <h3>Step 1 — Select Package</h3>
-      <div id="tcpPackages" class="package-grid"></div>
-    </div>
-    <div class="step" id="tcpStep2">
-      <h3>Step 2 — Bot Information</h3>
-      <div class="field">
-        <label>Bot Name (Maximum 9 Characters)</label>
-        <input id="botName" maxlength="9" placeholder="Enter Bot Name">
-      </div>
-    </div>
-    <div class="step" id="tcpStep3">
-      <h3>Step 3 — Guild Join</h3>
-      <div class="field">
-        <label>Do you want Guild Join?</label>
-        <select id="guildJoin">
-          <option value="">Select Option</option>
-          <option value="YES">YES</option>
-          <option value="NO">NO</option>
-          <option value="SKIP">SKIP</option>
-        </select>
-      </div>
-    </div>
-    <div class="step" id="tcpStep4">
-      <h3>Step 4 — Guild & Friend UID</h3>
-      <div class="field">
-        <label>Guild ID (Required if Guild Join = YES)</label>
-        <input id="tcpGuildId" inputmode="numeric" placeholder="Guild ID">
-      </div>
-      <div class="field"><label>Friend UID 1</label><input id="friend1" inputmode="numeric" placeholder="Optional"></div>
-      <div class="field"><label>Friend UID 2</label><input id="friend2" inputmode="numeric" placeholder="Optional"></div>
-      <div class="field"><label>Friend UID 3</label><input id="friend3" inputmode="numeric" placeholder="Optional"></div>
-      <div class="field"><label>Friend UID 4</label><input id="friend4" inputmode="numeric" placeholder="Optional"></div>
-    </div>
-    <div class="step" id="tcpStep5">
-      <h3>Step 5 — Review & Payment</h3>
-      <div id="tcpSummary"></div>
-      <div class="payment-fields"></div>
-      <button class="primary" onclick="submitTcp()">Confirm Order</button>
-      <div id="tcpMessage" class="message"></div>
-    </div>
-    <div class="actions">
-      <button class="secondary" id="tcpPrev" onclick="tcpMove(-1)">Back</button>
-      <button class="primary" id="tcpNext" onclick="tcpMove(1)">Next</button>
-    </div>
-  </div>
-  <div class="notice" id="tcpNotice"></div>
-  <div class="social"></div>
-</section>
-
-<section id="glory" class="page">
-  <button class="back" onclick="showPage('home')">← Back</button>
-  <div class="page-heading">
-    <h2>🏆 GUILD GLORY BOT</h2>
-    <p>Select a package and enter your Guild ID.</p>
-  </div>
-  <div id="gloryPackages" class="package-grid"></div>
-  <div id="gloryForm" class="panel hidden">
-    <div class="field">
-      <label>Guild ID</label>
-      <input id="gloryGuildId" inputmode="numeric" placeholder="Enter Guild ID">
-    </div>
-    <div id="glorySummary"></div>
-    <div class="payment-fields"></div>
-    <button class="primary" onclick="submitGlory()">Confirm Order</button>
-    <div id="gloryMessage" class="message"></div>
-  </div>
-  <div class="notice" id="gloryNotice"></div>
-  <div class="social"></div>
-</section>
-
-<section id="tools" class="page">
-  <button class="back" onclick="showPage('home')">← Back</button>
-  <div class="page-heading"><h2>FREE TOOLS</h2></div>
-  <div class="panel">
-    <h3>Player Bio Copy</h3>
-    <div class="field">
-      <label>Player UID</label>
-      <input id="toolPlayerUid" inputmode="numeric" placeholder="Enter Player UID">
-    </div>
-    <button class="primary" onclick="toolPlayer()">Check Player</button>
-    <div id="toolPlayerResult" class="message"></div>
-  </div>
-  <div class="panel">
-    <h3>Guild Info Checker</h3>
-    <div class="field">
-      <label>Guild UID</label>
-      <input id="toolGuildUid" inputmode="numeric" placeholder="Enter Guild UID">
-    </div>
-    <button class="primary" onclick="toolGuild()">Check Guild</button>
-    <div id="toolGuildResult" class="message"></div>
-  </div>
-  <div class="panel">
-    <h3>Free Phone Root Service</h3>
-    <p>Contact the admin for details.</p>
-    <a class="social-link whatsapp contact-card" id="rootContact" href="#" target="_blank">WhatsApp Contact</a>
-  </div>
-  <div class="social"></div>
-</section>
-
-</main>
-<footer id="footerText"></footer>
-
+<div class="top"><div class="brand"><div class="logo" id="logo">G</div><span id="bn">GENOX SHOP</span></div><div class="pill" id="wal">৳ 0</div></div>
+<div class="wrap" id="app"></div>
+<div id="sheet"></div><div id="toast"></div>
+<div class="nav">
+<a href="#/home" data-k="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Home</a>
+<a href="#/orders" data-k="orders"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>My Orders</a>
+<a href="#/account" data-k="account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>My Account</a>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="/config.js"></script>
 <script>
-/* =========================================================
-   GENOX SETTINGS
-   ভবিষ্যতে সাধারণ তথ্য পরিবর্তন করতে এই অংশ এডিট করবে।
-   ========================================================= */
+const C=window.GENOX_CONFIG;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const taka=n=>'৳'+Number(n).toLocaleString('en-US');
+const fmt=n=>Number(n).toLocaleString('en-US');
+const pad=n=>String(n).padStart(2,'0');
+const SVC={likes:{n:'Free Fire Likes',i:'❤️'},tcp:{n:'TCP Bot',i:'🤖'},glory:{n:'Guild Glory Bot',i:'🏆'}};
+const TOOLS=[{k:'root',n:'Phone Root Service',i:'📱'},{k:'guild',n:'Guild Info Checker',i:'🛡️'},{k:'bio',n:'Player Bio Copy',i:'📋'},{k:'player',n:'Player Info',i:'👤'}];
+const PAYN={nagad:'Nagad',bkash:'bKash',rocket:'Rocket'};
+const SOC=[['youtube','YouTube'],['facebook','Facebook'],['tiktok','TikTok'],['telegram','Telegram'],['instagram','Instagram'],['whatsapp','WhatsApp']];
+const STB={pending:'Pending',processing:'Processing',completed:'Completed',cancelled:'Cancelled',rejected:'Rejected'};
+let sb=null,session=null,profile=null,S={of:'all',wiz:null};
 
-const SETTINGS = {
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',2800)}
+function openSheet(h){$('#sheet').innerHTML='<div class="bd" data-act="close"></div><div class="box"><button class="x" data-act="close">✕</button>'+h+'</div>';$('#sheet').style.display='block'}
+function closeSheet(){$('#sheet').style.display='none';$('#sheet').innerHTML=''}
+function link(k,v){v=String(v||'').trim();if(!v)return'';if(/^https?:/i.test(v))return v;if(k==='whatsapp')return 'https://wa.me/'+v.replace(/\D/g,'');if(k==='telegram')return 'https://t.me/'+v.replace('@','');return ''}
+function img(src,fb){return src?'<img src="'+esc(src)+'" alt="" onerror="this.style.display=\'none\'">':fb}
+function sumHtml(a){return '<div class="sum">'+a.map(r=>'<div><span>'+esc(r[0])+'</span><b>'+esc(r[1])+'</b></div>').join('')+'</div>'}
+function findPkg(id){for(const c in C.likes){const p=C.likes[c].packages.find(x=>x.id===id);if(p)return{p,cat:c}}
+let p=C.tcp.packages.find(x=>x.id===id);if(p)return{p,cat:''};p=C.glory.packages.find(x=>x.id===id);if(p)return{p,cat:''};return null}
 
-  SHOP_NAME: "GENOX SHOP",
-  ADMIN_NAME: "GENOX",
+async function loadProfile(){profile=null;if(sb&&session){const r=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();profile=r.data||null}}
+function header(){$('#logo').innerHTML=img(C.images.logo,'G')||'G';$('#bn').textContent=C.shopName;$('#wal').textContent='৳ '+fmt(profile?profile.wallet_balance||0:0)}
+function loginBtns(){return '<button class="btn" data-act="login" data-p="google">Google দিয়ে লগইন</button><button class="btn alt" data-act="login" data-p="facebook">Facebook দিয়ে লগইন</button>'}
+function needLogin(){if(session)return true;sessionStorage.setItem('gx_back',location.hash||'#/home');openSheet('<h3>লগইন প্রয়োজন</h3><p class="mu" style="margin-top:6px">অর্ডার করতে আগে লগইন করুন।</p>'+loginBtns());return false}
+async function login(p){if(!sb)return toast('Supabase সেটিং যোগ করা হয়নি');if(!sessionStorage.getItem('gx_back'))sessionStorage.setItem('gx_back',location.hash||'#/home');const r=await sb.auth.signInWithOAuth({provider:p,options:{redirectTo:location.origin+location.pathname}});if(r.error)toast(r.error.message)}
 
-  CONTACT: {
-    WHATSAPP_NUMBER: "8801604884747",
-    TELEGRAM_LINK: "https://t.me/Jabedakash",
-    SUPPORT_EMAIL: "YOUR_EMAIL_HERE"
-  },
+async function send(payload,btn){
+ const old=btn.textContent;btn.disabled=true;btn.textContent='অপেক্ষা করুন...';
+ try{
+  const s=await sb.auth.getSession();
+  const r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+s.data.session.access_token},body:JSON.stringify(payload)});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok||!j.ok)throw new Error(j.error||'অর্ডার সম্পন্ন হয়নি');
+  return j.order;
+ }catch(e){toast(e.message||'সার্ভারে সমস্যা');btn.disabled=false;btn.textContent=old;return null}
+}
+async function callApi(path){const r=await fetch(path);const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||'তথ্য পাওয়া যায়নি');return j.data}
 
-  PAYMENT: {
-    NAGAD_NUMBER: "01972982173",
-    BKASH_NUMBER: "YOUR_BKASH_NUMBER",
-    ROCKET_NUMBER: "YOUR_ROCKET_NUMBER"
-  },
+function payFields(){
+ const pm=Object.entries(C.payment).filter(e=>String(e[1]).trim());
+ if(!pm.length)return '<div class="warn">পেমেন্ট তথ্য এখনো যোগ করা হয়নি।</div>';
+ return '<div class="paybox">'+pm.map(e=>'<div><b>'+PAYN[e[0]]+'</b>: '+esc(e[1])+'</div>').join('')+'<small>টাকা পাঠিয়ে Transaction ID দিন।</small></div><label>Payment Method</label><select id="f_pay">'+pm.map(e=>'<option value="'+e[0]+'">'+PAYN[e[0]]+'</option>').join('')+'</select><label>Transaction ID</label><input id="f_txn" placeholder="Transaction ID">';
+}
+function contactFields(n,p){return '<label>আপনার নাম</label><input id="f_name" value="'+esc(n!=null?n:(profile&&profile.display_name)||'')+'"><label>ফোন / WhatsApp নম্বর</label><input id="f_phone" inputmode="tel" value="'+esc(p||'')+'">'}
+const g=id=>(($('#'+id)||{}).value||'').trim();
+function checkContact(n,p){if(n.length<2)return 'নাম লিখুন';if(!/^\+?\d{8,15}$/.test(p))return 'সঠিক ফোন নম্বর লিখুন';return ''}
+const okUid=v=>/^\d{6,14}$/.test(v);
 
-  SOCIAL_MEDIA: {
-    WHATSAPP: "https://wa.me/8801604884747",
-    INSTAGRAM: "YOUR_INSTAGRAM_LINK",
-    FACEBOOK: "YOUR_FACEBOOK_LINK",
-    TIKTOK: "YOUR_TIKTOK_LINK",
-    YOUTUBE: "YOUR_YOUTUBE_LINK"
-  },
+function openOrder(svc,id){
+ if(!needLogin())return;
+ const f=findPkg(id);if(!f)return;const p=f.p;
+ const sum=svc==='likes'?[['Category',C.likes[f.cat].title],['Duration',pad(p.days)+' Days'],['Total Likes',fmt(p.total)],['Price',taka(p.price)]]:[['Package',p.bots+' BOT'],['Price',taka(p.price)]];
+ openSheet('<h3>অর্ডার ফর্ম</h3>'+sumHtml(sum)+'<label>'+(svc==='likes'?'Free Fire UID':'Guild UID')+'</label><input id="f_uid" inputmode="numeric">'+contactFields()+payFields()+'<button class="btn" id="go">অর্ডার জমা দিন</button>');
+ $('#go').onclick=async e=>{
+  const name=g('f_name'),phone=g('f_phone'),uid=g('f_uid'),pay=g('f_pay'),txn=g('f_txn');
+  const err=checkContact(name,phone)||(!okUid(uid)&&'সঠিক UID লিখুন')||(!pay&&'পেমেন্ট মেথড লাগবে')||(txn.length<6&&'Transaction ID লিখুন');
+  if(err)return toast(err);
+  const o=await send({service:svc,package_id:id,uid,name,phone,payment_method:pay,transaction_id:txn},e.target);
+  if(o)openSheet('<div class="center"><div style="font-size:44px">✅</div><h3>অর্ডার জমা হয়েছে</h3><p class="mu">Order ID: <b>'+esc(o.order_code)+'</b></p><a class="btn" href="#/orders" data-act="close">My Orders দেখুন</a></div>');
+ };
+}
 
-  API: {
-    PLAYER_API: "/api/player",
-    GUILD_API: "/api/guild",
-    ORDER_API: "/api/orders"
-  },
+function notice(k){const t=String((C.notices||{})[k]||'').trim();return t?'<div class="notice">'+esc(t)+'</div>':''}
+function svcHead(k){return '<a class="back" href="#/home">← হোম</a><div class="card head"><span class="ic sm">'+img(C.images[k],SVC[k].i)+'</span><h2>'+SVC[k].n+'</h2></div>'+notice(k)}
 
-  CURRENCY: "৳",
-
-  PACKAGES: {
-    LIKES: {
-      "200": {
-        "07 Days": {likes:1400,price:55},
-        "15 Days": {likes:3000,price:90},
-        "30 Days": {likes:6000,price:150},
-        "60 Days": {likes:12000,price:300},
-        "90 Days": {likes:18000,price:450}
-      },
-      "400": {
-        "07 Days": {likes:2800,price:150},
-        "15 Days": {likes:6000,price:240},
-        "30 Days": {likes:12000,price:400},
-        "60 Days": {likes:24000,price:800},
-        "90 Days": {likes:36000,price:1200}
-      },
-      "1000": {
-        "07 Days": {likes:7000,price:300},
-        "15 Days": {likes:15000,price:550},
-        "30 Days": {likes:30000,price:1000},
-        "60 Days": {likes:60000,price:2000},
-        "90 Days": {likes:90000,price:3000}
-      }
-    },
-
-    TCP: {
-      "07 Days":130,
-      "15 Days":275,
-      "30 Days":550,
-      "60 Days":1100
-    },
-
-    GLORY: {
-      "4 Glory Bot":120,
-      "8 Glory Bot":240,
-      "12 Glory Bot":360,
-      "16 Glory Bot":480
-    }
-  },
-
-  NOTICES: {
-    LIKES: "⚠️ Likes অর্ডার করার আগে UID ও প্যাকেজ ভালোভাবে যাচাই করুন। ভুল UID দিলে অর্ডারে সমস্যা হতে পারে।",
-    TCP: "⚠️ TCP BOT অর্ডার করার আগে আপনার দেওয়া সব তথ্য ভালোভাবে যাচাই করুন।",
-    GLORY: `⚠️ Glory BOT অর্ডার করার আগে অবশ্যই নিজ দায়িত্বে ও নিজ রিংক্সে (ঝুঁকিতে) অর্ডার করবেন।
-⚠️ Guild Setting Default করতে হবে।
-♦️ VIP+ 4 BOT: ৬০K-৭০০K+ Glory।
-💯 VIP+ এ ৬০K এর কম হলে আবার বট দেওয়া হবে।
-⚠️ Glory কম-বেশি সম্পূর্ণ Server-এর ওপর নির্ভরশীল।
-⚠️ BOT ব্যবহারে Guild-এর কোনো সমস্যা হলে কর্তৃপক্ষ দায়ী থাকবে।`
-  },
-
-  FAQ: [
-    {
-      question:"কত দিনে Likes পাওয়া যাবে?",
-      answer:"আপনার নির্বাচিত প্যাকেজের সময় অনুযায়ী Likes সরবরাহ করা হবে।"
-    },
-    {
-      question:"অর্ডার কীভাবে করব?",
-      answer:"সার্ভিস নির্বাচন করে প্যাকেজ ও প্রয়োজনীয় তথ্য দিন। তারপর Payment ও Transaction ID দিয়ে Confirm করুন।"
-    },
-    {
-      question:"পেমেন্ট কীভাবে যাচাই হবে?",
-      answer:"অ্যাডমিন আপনার দেওয়া Transaction ID নিজে যাচাই করবেন।"
-    },
-    {
-      question:"অর্ডারের সমস্যা হলে কী করব?",
-      answer:"ওয়েবসাইটের WhatsApp বা Telegram Contact ব্যবহার করে অ্যাডমিনের সঙ্গে যোগাযোগ করুন।"
-    }
-  ],
-
-  DESIGN: {
-    BACKGROUND:"#080d1b",
-    CARD:"#111b30",
-    BLUE:"#3988ff",
-    PURPLE:"#8757ff",
-    TEXT:"#f4f7ff"
-  },
-
-  FOOTER_TEXT:"© GENOX SHOP — All Rights Reserved"
+const pages={
+ home(){
+  let h='<div class="banner">'+(C.images.welcomeBanner?img(C.images.welcomeBanner,''):'<div><h2>স্বাগতম</h2><p>'+esc(C.shopName)+'</p></div>')+'</div>';
+  h+='<h3 class="sec">Main Services</h3><div class="svc">'+Object.keys(SVC).map(k=>'<a href="#/'+k+'"><span class="ic">'+img(C.images[k],SVC[k].i)+'</span>'+SVC[k].n+'</a>').join('')+'</div>';
+  h+='<h3 class="sec">Free Services</h3><div class="tools">'+TOOLS.map(t=>'<a class="card" href="#/tool/'+t.k+'"><span class="ic">'+t.i+'</span>'+t.n+'</a>').join('')+'</div>';
+  if((C.faq||[]).length)h+='<h3 class="sec">FAQ</h3>'+C.faq.map(f=>'<div class="card"><details><summary>'+esc(f.q)+'</summary><p style="margin-top:8px">'+esc(f.a)+'</p></details></div>').join('');
+  const so=SOC.map(s=>[s[1],link(s[0],C.social[s[0]])]).filter(s=>s[1]);
+  h+='<div class="soc">'+so.map(s=>'<a href="'+esc(s[1])+'" target="_blank" rel="noopener">'+s[0]+'</a>').join('')+'</div><div class="foot">'+esc(C.footerText)+'</div>';
+  $('#app').innerHTML=h;
+ },
+ likes(){
+  let h=svcHead('likes');
+  for(const c in C.likes){const gr=C.likes[c];h+='<h3 class="sec">'+esc(gr.title)+'</h3><div class="grid">'+gr.packages.map(p=>'<button class="pkg" data-act="likes" data-id="'+p.id+'"><b>'+pad(p.days)+' Days</b><span>'+fmt(p.total)+' Likes</span><em>'+taka(p.price)+'</em></button>').join('')+'</div>'}
+  $('#app').innerHTML=h;
+ },
+ glory(){
+  $('#app').innerHTML=svcHead('glory')+'<h3 class="sec">প্যাকেজ</h3><div class="grid">'+C.glory.packages.map(p=>'<button class="pkg" data-act="glory" data-id="'+p.id+'"><b>'+p.bots+' BOT</b><em>'+taka(p.price)+'</em></button>').join('')+'</div>';
+ },
+ tcp(){
+  $('#app').innerHTML=svcHead('tcp')+'<h3 class="sec">প্যাকেজ</h3><div class="grid">'+C.tcp.packages.map(p=>'<button class="pkg" data-act="tcp" data-id="'+p.id+'"><b>'+pad(p.days)+' Days</b><em>'+taka(p.price)+'</em></button>').join('')+'</div><div id="wiz" style="margin-top:14px"></div>';
+ },
+ async orders(){
+  if(!session){$('#app').innerHTML='<div class="card center"><h3>লগইন প্রয়োজন</h3><p class="mu">আপনার অর্ডার দেখতে লগইন করুন।</p>'+loginBtns()+'</div>';sessionStorage.setItem('gx_back','#/orders');return}
+  $('#app').innerHTML='<p class="mu center">লোড হচ্ছে...</p>';
+  const r=await sb.from('orders').select('*').order('created_at',{ascending:false});
+  if(r.error){$('#app').innerHTML='<div class="warn">'+esc(r.error.message)+'</div>';return}
+  S.orders=r.data||[];drawOrders();
+ },
+ account(){
+  if(!session){sessionStorage.setItem('gx_back','#/account');$('#app').innerHTML='<div class="card center"><div class="av">👤</div><h3>Not Logged In</h3><p class="mu">লগইন করে অর্ডার ও প্রোফাইল দেখুন।</p>'+loginBtns()+'</div>';return}
+  const m=session.user.user_metadata||{};const nm=(profile&&profile.display_name)||m.full_name||m.name||'Customer';const av=(profile&&profile.avatar_url)||m.avatar_url||C.images.profile;
+  const ct=[['whatsapp','WhatsApp'],['telegram','Telegram']].map(s=>[s[1],link(s[0],C.social[s[0]])]).filter(s=>s[1]);
+  $('#app').innerHTML='<div class="card center"><div class="av">'+img(av,'👤')+'</div><h3>'+esc(nm)+'</h3><p class="mu">'+esc(session.user.email||'')+'</p><div class="pill" style="display:inline-block;margin-top:10px">Wallet: ৳ '+fmt(profile?profile.wallet_balance||0:0)+'</div></div>'
+  +'<div class="card"><h3>Account Settings</h3><button class="btn alt" data-act="rename">নাম পরিবর্তন করুন</button></div>'
+  +'<div class="card"><h3>Support Contact</h3>'+(C.supportContact?'<p>'+esc(C.supportContact)+'</p>':'')+ct.map(s=>'<a class="btn alt" href="'+esc(s[1])+'" target="_blank" rel="noopener">'+s[0]+'</a>').join('')+((!C.supportContact&&!ct.length)?'<p class="mu">যোগাযোগের তথ্য এখনো যোগ করা হয়নি।</p>':'')+'</div>'
+  +'<button class="btn" data-act="logout" style="background:#e5484d">Logout</button>';
+ },
+ tool(k){
+  const T=TOOLS.find(t=>t.k===k);if(!T){location.hash='#/home';return}
+  let h='<a class="back" href="#/home">← হোম</a><div class="card head"><span class="ic sm">'+T.i+'</span><h2>'+T.n+'</h2></div>';
+  if(k==='root'){
+   const ct=[['whatsapp','WhatsApp'],['telegram','Telegram']].map(s=>[s[1],link(s[0],C.social[s[0]])]).filter(s=>s[1]);
+   h+='<div class="card"><p>এটি যোগাযোগ-ভিত্তিক সেবা। আপনার ডিভাইসের তথ্য জানিয়ে সাপোর্টের সাথে যোগাযোগ করুন।</p>'+(C.supportContact?'<p style="margin-top:8px"><b>'+esc(C.supportContact)+'</b></p>':'')+ct.map(s=>'<a class="btn" href="'+esc(s[1])+'" target="_blank" rel="noopener">'+s[0]+'-এ যোগাযোগ</a>').join('')+((!C.supportContact&&!ct.length)?'<p class="mu" style="margin-top:8px">যোগাযোগের তথ্য এখনো যোগ করা হয়নি।</p>':'')+'</div>';
+  }else h+='<div class="card"><label>'+(k==='guild'?'Guild ID':'Player UID')+'</label><input id="t_in" inputmode="numeric"><button class="btn" data-act="tool" data-k="'+k+'">খুঁজুন</button></div><div id="t_out"></div>';
+  $('#app').innerHTML=h;
+ }
 };
 
-/* =========================================================
-   END OF GENOX SETTINGS
-   ========================================================= */
-
-document.documentElement.style.setProperty("--bg",SETTINGS.DESIGN.BACKGROUND);
-document.documentElement.style.setProperty("--card",SETTINGS.DESIGN.CARD);
-document.documentElement.style.setProperty("--blue",SETTINGS.DESIGN.BLUE);
-document.documentElement.style.setProperty("--purple",SETTINGS.DESIGN.PURPLE);
-document.documentElement.style.setProperty("--text",SETTINGS.DESIGN.TEXT);
-
-const LIKE_PACKAGES=SETTINGS.PACKAGES.LIKES;
-const TCP_PACKAGES=SETTINGS.PACKAGES.TCP;
-const GLORY_PACKAGES=SETTINGS.PACKAGES.GLORY;
-
-let selectedLike=null;
-let selectedTcp=null;
-let selectedGlory=null;
-let verifiedPlayer=null;
-let tcpStep=1;
-
-function showPage(id){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-function openService(id){showPage(id);}
-
-function escapeHTML(value){
-  return String(value??"").replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
+function drawOrders(){
+ const f=S.of,L=(S.orders||[]).filter(o=>f==='all'||o.status===f);
+ let h='<div class="filters">'+[['all','All Orders'],['pending','Pending'],['completed','Completed']].map(x=>'<button data-act="of" data-f="'+x[0]+'" class="'+(f===x[0]?'on':'')+'">'+x[1]+'</button>').join('')+'</div>';
+ if(!L.length)h+='<div class="card center mu">কোনো অর্ডার নেই</div>';
+ h+=L.map(o=>{const d=o.customer_data||{};return '<div class="card"><div class="row"><b>'+esc(o.order_code||o.id)+'</b><span class="st '+esc(o.status)+'">'+esc(STB[o.status]||o.status)+'</span></div>'
+  +sumHtml([['Service',(SVC[o.service]||{}).n||o.service],['Package',o.package_label||'-'],['Duration',o.duration_days?pad(o.duration_days)+' Days':'-'],[o.service==='likes'?'Total Likes':'Quantity',o.quantity!=null?fmt(o.quantity):'-'],['Price',taka(o.price||0)],['Date',new Date(o.created_at).toLocaleString('en-GB')]])
+  +'<details><summary>Order Details / Receipt</summary>'+sumHtml(Object.entries(d).map(e=>[e[0],Array.isArray(e[1])?e[1].join(', '):e[1]]).concat([['Payment',(PAYN[o.payment_method]||o.payment_method||'-')],['Transaction ID',o.transaction_id||'-']]))+'</details></div>'}).join('');
+ $('#app').innerHTML=h;
 }
 
-function makeCard(title,sub,price,selected,click){
-  return `<button type="button" class="package-card ${selected?'selected':''}" onclick="${click}">
-    <strong>${escapeHTML(title)}</strong>
-    <small>${escapeHTML(sub)}</small>
-    <span class="price">${SETTINGS.CURRENCY}${price}</span>
-  </button>`;
+function startTcp(id){
+ if(!needLogin())return;
+ const f=findPkg(id);S.wiz={step:1,pkg:f.p,name:(profile&&profile.display_name)||'',phone:'',uid:'',friends:[],pay:'',txn:''};
+ renderWiz();$('#wiz').scrollIntoView({behavior:'smooth'});
+}
+function saveStep(){const w=S.wiz;
+ if(w.step===2){w.name=g('w_name');w.phone=g('w_phone');w.uid=g('w_uid');w.friends=[];for(let i=0;i<C.tcp.friendUidSlots;i++)w.friends.push(g('w_f'+i))}
+ if(w.step===3){w.pay=g('f_pay');w.txn=g('f_txn')}
+}
+function renderWiz(){
+ const w=S.wiz,el=$('#wiz');if(!w||!el)return;const p=w.pkg;
+ let h='<div class="card"><div class="steps">'+[1,2,3,4,5].map(i=>'<i class="'+(i<=w.step?'on':'')+'">'+i+'</i>').join('')+'</div><div class="pk">TCP Bot · '+pad(p.days)+' Days · <b>'+taka(p.price)+'</b></div>';
+ const pk=[['Package','TCP Bot'],['Duration',pad(p.days)+' Days'],['Price',taka(p.price)]];
+ if(w.step===1)h+='<h3>ধাপ ১: প্যাকেজ নিশ্চিত করুন</h3>'+sumHtml(pk)+'<button class="btn" data-act="wnext">পরের ধাপ</button>';
+ if(w.step===2){h+='<h3>ধাপ ২: তথ্য দিন</h3>'+contactFields(w.name,w.phone).replace('id="f_name"','id="w_name"').replace('id="f_phone"','id="w_phone"')+'<label>TCP UID</label><input id="w_uid" inputmode="numeric" value="'+esc(w.uid)+'">';
+  for(let i=0;i<C.tcp.friendUidSlots;i++)h+='<label>Friend UID '+(i+1)+' (ঐচ্ছিক)</label><input id="w_f'+i+'" inputmode="numeric" value="'+esc(w.friends[i]||'')+'">';
+  h+='<button class="btn" data-act="wnext">পরের ধাপ</button>'}
+ if(w.step===3)h+='<h3>ধাপ ৩: পেমেন্ট</h3>'+payFields()+'<button class="btn" data-act="wnext">পরের ধাপ</button>';
+ const rows=pk.concat([['Name',w.name],['Phone',w.phone],['TCP UID',w.uid],['Friend UID',(w.friends||[]).filter(Boolean).join(', ')||'-'],['Payment',PAYN[w.pay]||w.pay],['Transaction ID',w.txn]]);
+ if(w.step===4)h+='<h3>ধাপ ৪: সামারি যাচাই</h3>'+sumHtml(rows)+'<button class="btn" data-act="wsubmit">অর্ডার জমা দিন</button>';
+ if(w.step===5){const o=w.order;h+='<div class="center"><h3>'+esc(C.tcpReceiptHeading)+'</h3></div>'+sumHtml([['Order ID',o.order_code],['Date',new Date(o.created_at).toLocaleString('en-GB')]].concat(rows))+'<p class="mu center">অর্ডারটি জমা হয়েছে। My Orders-এ দেখা যাবে।</p>'}
+ if(w.step>1&&w.step<5)h+='<button class="btn alt" data-act="wback">পিছনে</button>';
+ el.innerHTML=h+'</div>';
+}
+function wnext(){
+ const w=S.wiz;saveStep();let err='';
+ if(w.step===2)err=checkContact(w.name,w.phone)||(!okUid(w.uid)&&'সঠিক TCP UID লিখুন')||(w.friends.some(f=>f&&!okUid(f))&&'Friend UID ভুল আছে');
+ if(w.step===3)err=(!w.pay&&'পেমেন্ট মেথড বেছে নিন')||(w.txn.length<6&&'Transaction ID লিখুন');
+ if(err)return toast(err);
+ w.step++;renderWiz();
+}
+async function wsubmit(btn){
+ const w=S.wiz;
+ const o=await send({service:'tcp',package_id:w.pkg.id,uid:w.uid,friend_uids:w.friends.filter(Boolean),name:w.name,phone:w.phone,payment_method:w.pay,transaction_id:w.txn},btn);
+ if(o){w.order=o;w.step=5;renderWiz()}
 }
 
-function renderLikes(){
-  const root=document.getElementById("likesPackages");
-  root.innerHTML="";
-  Object.entries(LIKE_PACKAGES).forEach(([pack,durations])=>{
-    Object.entries(durations).forEach(([duration,values])=>{
-      root.innerHTML+=makeCard(
-        pack+" Likes",
-        duration+" • "+values.likes.toLocaleString()+" Total Likes",
-        values.price,
-        selectedLike?.pack===pack&&selectedLike?.duration===duration,
-        `selectLikes('${pack}','${duration}')`
-      );
-    });
-  });
+function flat(o,pre){pre=pre||'';let r=[];for(const k in o){const v=o[k];if(v&&typeof v==='object'&&!Array.isArray(v)&&pre.split('.').length<3)r=r.concat(flat(v,pre+k+'.'));else r.push([pre+k,v==null?'-':Array.isArray(v)?v.map(x=>typeof x==='object'?JSON.stringify(x):x).join(', '):v])}return r}
+function findBio(o){if(!o||typeof o!=='object')return '';for(const k in o){const v=o[k];if(/bio|signature/i.test(k)&&typeof v==='string'&&v.trim())return v;if(v&&typeof v==='object'){const x=findBio(v);if(x)return x}}return ''}
+async function runTool(k){
+ const v=g('t_in'),out=$('#t_out');
+ if(!/^\d{4,14}$/.test(v))return toast('সঠিক নম্বর লিখুন');
+ out.innerHTML='<p class="mu center">লোড হচ্ছে...</p>';
+ try{
+  const d=await callApi((k==='guild'?'/api/guild?id=':'/api/player?uid=')+encodeURIComponent(v));
+  if(k==='bio'){const b=findBio(d);out.innerHTML=b?'<div class="card"><pre id="bio">'+esc(b)+'</pre><button class="btn" data-act="copy">Copy করুন</button></div>':'<div class="warn">এই প্লেয়ারের কোনো Bio পাওয়া যায়নি।</div>'}
+  else out.innerHTML='<div class="card">'+sumHtml(flat(d))+'</div>';
+ }catch(e){out.innerHTML='<div class="warn">'+esc(e.message)+'</div>'}
 }
+async function copyBio(){const t=($('#bio')||{}).textContent||'';try{await navigator.clipboard.writeText(t);toast('কপি হয়েছে')}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('কপি হয়েছে')}catch(x){toast('কপি করা যায়নি')}a.remove()}}
 
-function selectLikes(pack,duration){
-  selectedLike={pack,duration};
-  verifiedPlayer=null;
-  renderLikes();
-  document.getElementById("likesForm").classList.remove("hidden");
-  document.getElementById("likesPayment").classList.add("hidden");
-  document.getElementById("playerResult").textContent="";
-}
-
-function paymentHTML(){
-  const methods=[
-    ["Nagad",SETTINGS.PAYMENT.NAGAD_NUMBER],
-    ["bKash",SETTINGS.PAYMENT.BKASH_NUMBER],
-    ["Rocket",SETTINGS.PAYMENT.ROCKET_NUMBER]
-  ].filter(item=>item[1]&&!item[1].startsWith("YOUR_"));
-
-  return `
-    <div class="panel">
-      <h3>Payment Information</h3>
-      ${methods.length?`
-      <div class="field">
-        <label>Payment Method</label>
-        <select class="pay-method">
-          ${methods.map(m=>`<option value="${escapeHTML(m[0])}">${escapeHTML(m[0])} — ${escapeHTML(m[1])}</option>`).join("")}
-        </select>
-      </div>
-      <p class="message">Payment Number: <strong class="pay-number">${escapeHTML(methods[0][1])}</strong></p>
-      `:`<p class="message error">Payment number has not been configured.</p>`}
-      <div class="field">
-        <label>Transaction ID</label>
-        <input class="txn-id" placeholder="Enter Transaction ID">
-      </div>
-    </div>`;
-}
-
-document.querySelectorAll(".payment-fields").forEach(el=>el.innerHTML=paymentHTML());
-
-document.addEventListener("change",function(event){
-  if(event.target.classList.contains("pay-method")){
-    const container=event.target.closest(".payment-fields");
-    if(!container)return;
-    const selected=event.target.value;
-    const item={
-      Nagad:SETTINGS.PAYMENT.NAGAD_NUMBER,
-      bKash:SETTINGS.PAYMENT.BKASH_NUMBER,
-      Rocket:SETTINGS.PAYMENT.ROCKET_NUMBER
-    };
-    const number=container.querySelector(".pay-number");
-    if(number)number.textContent=item[selected]||"";
-  }
+document.addEventListener('click',async e=>{
+ const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act;
+ if(a==='close')closeSheet();
+ else if(a==='likes'||a==='glory')openOrder(a,t.dataset.id);
+ else if(a==='tcp')startTcp(t.dataset.id);
+ else if(a==='wnext')wnext();
+ else if(a==='wback'){saveStep();S.wiz.step--;renderWiz()}
+ else if(a==='wsubmit')wsubmit(t);
+ else if(a==='login')login(t.dataset.p);
+ else if(a==='logout'){await sb.auth.signOut();session=null;profile=null;header();location.hash='#/home';route()}
+ else if(a==='of'){S.of=t.dataset.f;drawOrders()}
+ else if(a==='tool')runTool(t.dataset.k);
+ else if(a==='copy')copyBio();
+ else if(a==='rename'){const n=prompt('নতুন নাম লিখুন');if(n&&n.trim().length>1){const r=await sb.from('profiles').update({display_name:n.trim()}).eq('id',session.user.id);if(r.error)toast(r.error.message);else{await loadProfile();route();toast('নাম বদলেছে')}}}
 });
 
-function paymentData(container){
-  const box=document.querySelector(container);
-  const method=box.querySelector(".pay-method");
-  const txn=box.querySelector(".txn-id").value.trim();
-  if(!method)throw new Error("Payment method is not configured.");
-  if(!txn)throw new Error("Transaction ID লিখুন।");
-  return {paymentMethod:method.value,transactionId:txn};
+function nav(p){const m={orders:'orders',account:'account'}[p]||'home';document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('on',a.dataset.k===m))}
+function route(){
+ const h=(location.hash||'#/home').slice(2).split('/'),p=h[0]||'home';
+ S.wiz=null;closeSheet();header();
+ (pages[p]||pages.home)(h[1]);nav(p);window.scrollTo(0,0);
 }
+window.addEventListener('hashchange',route);
 
-function summaryHTML(rows){
-  return `<div class="panel">${rows.map(r=>
-    `<div class="summary-row"><span>${escapeHTML(r[0])}</span><strong>${escapeHTML(r[1])}</strong></div>`
-  ).join("")}</div>`;
-}
-
-async function checkPlayer(){
-  const uid=document.getElementById("likesUid").value.trim();
-  const result=document.getElementById("playerResult");
-  result.textContent="Checking UID...";
-  result.className="message";
-
-  if(!selectedLike){result.textContent="আগে একটি প্যাকেজ নির্বাচন করুন।";return;}
-  if(!/^[0-9]+$/.test(uid)){
-    result.textContent="সঠিক UID দিন।";
-    result.className="message error";
-    return;
+(async function init(){
+ try{
+  if(C.supabase.url&&C.supabase.publishableKey&&window.supabase){
+   sb=supabase.createClient(C.supabase.url,C.supabase.publishableKey,{auth:{flowType:'pkce'}});
+   const r=await sb.auth.getSession();session=r.data.session;
+   sb.auth.onAuthStateChange((ev,s)=>{session=s;setTimeout(async()=>{await loadProfile();route()},0)});
+   await loadProfile();
   }
-
-  try{
-    const res=await fetch(SETTINGS.API.PLAYER_API+"?uid="+encodeURIComponent(uid));
-    const data=await res.json();
-    if(!res.ok||!data.success)throw new Error(data.error||"Player not found");
-
-    verifiedPlayer={uid,playerName:data.player_name};
-    result.textContent="Player: "+data.player_name+" — UID Verified";
-    result.className="message success";
-
-    const pkg=LIKE_PACKAGES[selectedLike.pack][selectedLike.duration];
-    document.getElementById("likesSummary").innerHTML=summaryHTML([
-      ["Player UID",uid],
-      ["Player Name",data.player_name],
-      ["Package",selectedLike.pack+" Likes"],
-      ["Duration",selectedLike.duration],
-      ["Total Likes",pkg.likes.toLocaleString()],
-      ["Total Price",SETTINGS.CURRENCY+pkg.price]
-    ]);
-    document.getElementById("likesPayment").classList.remove("hidden");
-  }catch(e){
-    result.textContent=e.message;
-    result.className="message error";
-  }
-}
-
-async function sendOrder(service,data,messageId){
-  const msg=document.getElementById(messageId);
-  msg.textContent="অর্ডার পাঠানো হচ্ছে...";
-  msg.className="message";
-  try{
-    const res=await fetch(SETTINGS.API.ORDER_API,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({service,data})
-    });
-    const result=await res.json();
-    if(!res.ok||!result.success)throw new Error(result.error||"Order failed");
-
-    msg.textContent="Order submitted! Order ID: "+result.order_id+
-      (result.telegram_sent?" — Admin notification sent.":" — Order saved, but Telegram notification failed.");
-    msg.className="message success";
-  }catch(e){
-    msg.textContent=e.message;
-    msg.className="message error";
-  }
-}
-
-async function submitLikes(){
-  if(!verifiedPlayer||!selectedLike)return;
-  try{
-    const payment=paymentData("#likesPayment");
-    const pkg=LIKE_PACKAGES[selectedLike.pack][selectedLike.duration];
-    await sendOrder("likes",{
-      pack:selectedLike.pack,
-      duration:selectedLike.duration,
-      uid:verifiedPlayer.uid,
-      playerName:verifiedPlayer.playerName,
-      totalLikes:pkg.likes,
-      price:pkg.price,
-      ...payment
-    },"likesMessage");
-  }catch(e){
-    const msg=document.getElementById("likesMessage");
-    msg.textContent=e.message;
-    msg.className="message error";
-  }
-}
-
-function renderTcp(){
-  const root=document.getElementById("tcpPackages");
-  root.innerHTML="";
-  Object.entries(TCP_PACKAGES).forEach(([duration,price])=>{
-    root.innerHTML+=makeCard(duration,"TCP BOT Package",price,
-      selectedTcp===duration,`selectTcp('${duration}')`);
-  });
-}
-function selectTcp(duration){
-  selectedTcp=duration;
-  renderTcp();
-}
-function showTcpStep(){
-  for(let i=1;i<=5;i++){
-    document.getElementById("tcpStep"+i).classList.toggle("active",i===tcpStep);
-  }
-  document.getElementById("tcpCount").textContent="Step "+tcpStep+" of 5";
-  document.getElementById("tcpPrev").style.visibility=tcpStep===1?"hidden":"visible";
-  document.getElementById("tcpNext").classList.toggle("hidden",tcpStep===5);
-  if(tcpStep===5)renderTcpSummary();
-}
-function tcpMove(direction){
-  if(direction===1){
-    if(tcpStep===1&&!selectedTcp){alert("একটি TCP package নির্বাচন করুন।");return;}
-    if(tcpStep===2&&!document.getElementById("botName").value.trim()){alert("Bot Name লিখুন।");return;}
-    if(tcpStep===3&&!document.getElementById("guildJoin").value){alert("Guild Join নির্বাচন করুন।");return;}
-    if(tcpStep===4){
-      const join=document.getElementById("guildJoin").value;
-      const gid=document.getElementById("tcpGuildId").value.trim();
-      if(join==="YES"&&!/^[0-9]+$/.test(gid)){alert("সঠিক Guild ID দিন।");return;}
-      for(let i=1;i<=4;i++){
-        const v=document.getElementById("friend"+i).value.trim();
-        if(v&&!/^[0-9]+$/.test(v)){alert("Friend UID-তে শুধু সংখ্যা দিন।");return;}
-      }
-    }
-  }
-  tcpStep=Math.max(1,Math.min(5,tcpStep+direction));
-  showTcpStep();
-}
-function renderTcpSummary(){
-  const price=TCP_PACKAGES[selectedTcp];
-  document.getElementById("tcpSummary").innerHTML=summaryHTML([
-    ["Package",selectedTcp],
-    ["Bot Name",document.getElementById("botName").value],
-    ["Guild Join",document.getElementById("guildJoin").value],
-    ["Guild ID",document.getElementById("tcpGuildId").value||"N/A"],
-    ["Total Price",SETTINGS.CURRENCY+price]
-  ]);
-}
-async function submitTcp(){
-  try{
-    const payment=paymentData("#tcpStep5");
-    const data={
-      duration:selectedTcp,
-      botName:document.getElementById("botName").value.trim(),
-      guildJoin:document.getElementById("guildJoin").value,
-      guildId:document.getElementById("tcpGuildId").value.trim(),
-      price:TCP_PACKAGES[selectedTcp],
-      ...payment
-    };
-    for(let i=1;i<=4;i++)data["friend"+i]=document.getElementById("friend"+i).value.trim();
-    await sendOrder("tcp",data,"tcpMessage");
-  }catch(e){
-    const msg=document.getElementById("tcpMessage");
-    msg.textContent=e.message;
-    msg.className="message error";
-  }
-}
-
-function renderGlory(){
-  const root=document.getElementById("gloryPackages");
-  root.innerHTML="";
-  Object.entries(GLORY_PACKAGES).forEach(([pack,price])=>{
-    root.innerHTML+=makeCard(pack,"Guild Glory Package",price,
-      selectedGlory===pack,`selectGlory('${pack}')`);
-  });
-}
-function selectGlory(pack){
-  selectedGlory=pack;
-  renderGlory();
-  document.getElementById("gloryForm").classList.remove("hidden");
-  document.getElementById("glorySummary").innerHTML=summaryHTML([
-    ["Package",pack],
-    ["Total Price",SETTINGS.CURRENCY+GLORY_PACKAGES[pack]]
-  ]);
-}
-async function submitGlory(){
-  try{
-    const guildId=document.getElementById("gloryGuildId").value.trim();
-    if(!selectedGlory)throw new Error("একটি প্যাকেজ নির্বাচন করুন।");
-    if(!/^[0-9]+$/.test(guildId))throw new Error("সঠিক Guild ID দিন।");
-    const payment=paymentData("#gloryForm");
-    await sendOrder("glory",{
-      package:selectedGlory,
-      guildId,
-      price:GLORY_PACKAGES[selectedGlory],
-      ...payment
-    },"gloryMessage");
-  }catch(e){
-    const msg=document.getElementById("gloryMessage");
-    msg.textContent=e.message;
-    msg.className="message error";
-  }
-}
-
-async function toolPlayer(){
-  const uid=document.getElementById("toolPlayerUid").value.trim();
-  const out=document.getElementById("toolPlayerResult");
-  if(!/^[0-9]+$/.test(uid)){out.textContent="সঠিক UID দিন।";return;}
-  out.textContent="Loading...";
-  try{
-    const r=await fetch(SETTINGS.API.PLAYER_API+"?uid="+encodeURIComponent(uid));
-    const d=await r.json();
-    if(!r.ok||!d.success)throw new Error(d.error||"Not found");
-    out.innerHTML="";
-    const name=document.createElement("p");
-    name.textContent="Player: "+d.player_name;
-    const bio=document.createElement("p");
-    bio.textContent="Bio: "+(d.bio||"No bio available");
-    const copy=document.createElement("button");
-    copy.className="secondary";
-    copy.textContent="Copy Bio";
-    copy.onclick=()=>navigator.clipboard.writeText(d.bio||"");
-    out.append(name,bio,copy);
-  }catch(e){out.textContent=e.message;}
-}
-async function toolGuild(){
-  const uid=document.getElementById("toolGuildUid").value.trim();
-  const out=document.getElementById("toolGuildResult");
-  if(!/^[0-9]+$/.test(uid)){out.textContent="সঠিক Guild UID দিন।";return;}
-  out.textContent="Loading...";
-  try{
-    const r=await fetch(SETTINGS.API.GUILD_API+"?uid="+encodeURIComponent(uid));
-    const d=await r.json();
-    if(!r.ok||!d.success)throw new Error(d.error||"Guild information unavailable");
-    out.textContent=JSON.stringify(d.data,null,2);
-  }catch(e){out.textContent=e.message;}
-}
-
-function renderSocial(){
-  const links=SETTINGS.SOCIAL_MEDIA;
-  const items=[
-    ["WHATSAPP","WhatsApp","☘","whatsapp"],
-    ["INSTAGRAM","Instagram","◎","instagram"],
-    ["FACEBOOK","Facebook","f","facebook"],
-    ["TIKTOK","TikTok","♪","tiktok"],
-    ["YOUTUBE","YouTube","▶","youtube"]
-  ];
-  return `<h3>FOLLOW OUR SOCIAL MEDIA</h3><div class="social-grid">`+
-    items.filter(item=>{
-      const url=links[item[0]];
-      return url&&url!=="YOUR_"+item[0]+"_LINK";
-    }).map(item=>`
-      <a class="social-link ${item[3]}" href="${escapeHTML(links[item[0]])}" target="_blank" rel="noopener">
-        <span class="symbol">${item[2]}</span>${item[1]}
-      </a>`).join("")+
-    `</div>`;
-}
-
-function renderFaq(){
-  document.getElementById("faqList").innerHTML=SETTINGS.FAQ.map(item=>
-    `<div class="faq-item"><strong>${escapeHTML(item.question)}</strong><p>${escapeHTML(item.answer)}</p></div>`
-  ).join("");
-}
-
-function applySettings(){
-  document.title=SETTINGS.SHOP_NAME;
-  document.getElementById("siteLogo").innerHTML=
-    escapeHTML(SETTINGS.SHOP_NAME.split(" ")[0])+
-    ' <span>'+escapeHTML(SETTINGS.SHOP_NAME.split(" ").slice(1).join(" "))+'</span>';
-
-  document.getElementById("welcomeTitle").innerHTML=
-    'WELCOME TO <span>'+escapeHTML(SETTINGS.SHOP_NAME)+'</span>';
-
-  document.getElementById("likesNotice").textContent=SETTINGS.NOTICES.LIKES;
-  document.getElementById("tcpNotice").textContent=SETTINGS.NOTICES.TCP;
-  document.getElementById("gloryNotice").textContent=SETTINGS.NOTICES.GLORY;
-  document.getElementById("footerText").textContent=SETTINGS.FOOTER_TEXT;
-
-  document.getElementById("rootContact").href=SETTINGS.SOCIAL_MEDIA.WHATSAPP;
-  document.getElementById("homeSocial").innerHTML=renderSocial();
-  document.querySelectorAll(".social:not(#homeSocial)").forEach(el=>{
-    el.innerHTML=renderSocial();
-  });
-}
-
-applySettings();
-renderFaq();
-renderLikes();
-renderTcp();
-renderGlory();
-showTcpStep();
+ }catch(e){console.error(e)}
+ const back=sessionStorage.getItem('gx_back');
+ if(session&&back){sessionStorage.removeItem('gx_back');if(location.hash!==back){location.hash=back;return}}
+ route();
+})();
 </script>
 </body>
 </html>
